@@ -160,7 +160,7 @@ with st.sidebar:
         type="password",
         help="Obtenez votre clé gratuite sur aistudio.google.com"
     )
-    
+
     st.markdown("---")
     st.markdown("### 📖 Comment ça marche")
     st.markdown("""
@@ -169,13 +169,13 @@ with st.sidebar:
     3. Cliquez sur **Générer**
     4. Copiez ou exportez les résultats
     """)
-    
+
     st.markdown("---")
     st.markdown("### 💡 Exemple de User Story")
     st.code("""En tant qu'utilisateur,
-je veux pouvoir réinitialiser 
+je veux pouvoir réinitialiser
 mon mot de passe via email,
-afin de récupérer l'accès 
+afin de récupérer l'accès
 à mon compte.""", language=None)
 
 # --- Main Input ---
@@ -200,29 +200,29 @@ if generate:
         try:
             genai.configure(api_key=api_key)
             model = genai.GenerativeModel(
-                model_name="gemini-2.0-flash",
+                model_name="gemini-1.5-flash",
                 system_instruction=SYSTEM_PROMPT
             )
-            
+
             with st.spinner("🔄 Analyse de la User Story et génération des tests..."):
                 response = model.generate_content(
                     f"Voici la User Story à analyser :\n\n{user_story}"
                 )
                 result = response.text
-            
+
             # Display results
             st.markdown("---")
             st.markdown("## 📊 Résultats")
-            
+
             # Show the generated content
             st.markdown(result)
-            
+
             # --- Export Options ---
             st.markdown("---")
             st.markdown("### 📥 Exporter")
-            
+
             col_exp1, col_exp2 = st.columns(2)
-            
+
             with col_exp1:
                 # Markdown export
                 markdown_content = f"# QA Test Generator — Résultats\n\n## User Story\n{user_story}\n\n---\n\n{result}"
@@ -233,7 +233,7 @@ if generate:
                     mime="text/markdown",
                     use_container_width=True
                 )
-            
+
             with col_exp2:
                 # CSV-like export
                 csv_content = f"User Story:\n{user_story}\n\n---\n\n{result}"
@@ -244,10 +244,10 @@ if generate:
                     mime="text/plain",
                     use_container_width=True
                 )
-            
+
             # Store in session for copy
             st.session_state['last_result'] = result
-            
+
         except Exception as e:
             st.error(f"❌ Erreur : {str(e)}")
             if "API_KEY" in str(e).upper() or "INVALID" in str(e).upper():
