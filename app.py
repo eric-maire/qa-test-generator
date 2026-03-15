@@ -155,11 +155,15 @@ st.markdown("""
 # --- API Key ---
 with st.sidebar:
     st.markdown("### ⚙️ Configuration")
-    api_key = st.text_input(
-        "Clé API Google Gemini",
-        type="password",
-        help="Obtenez votre clé gratuite sur aistudio.google.com"
-    )
+    api_key = st.secrets.get("GEMINI_API_KEY", "")
+    if api_key:
+        st.success("✅ API connectée")
+    else:
+        api_key = st.text_input(
+            "Clé API Google Gemini",
+            type="password",
+            help="Obtenez votre clé sur aistudio.google.com"
+        )
 
     st.markdown("---")
     st.markdown("### 📖 Comment ça marche")
