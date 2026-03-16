@@ -49,52 +49,6 @@ st.markdown("""
     margin-bottom: 1rem;
 }
 
-/* Results sections */
-.section-header {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 1rem;
-    font-weight: 600;
-    color: #1a1a2e;
-    padding: 0.5rem 0;
-    border-bottom: 2px solid #e5e7eb;
-    margin: 1.5rem 0 0.75rem 0;
-}
-.test-case {
-    background: #f8fafc;
-    border-left: 3px solid #3b82f6;
-    padding: 1rem;
-    margin: 0.5rem 0;
-    border-radius: 0 8px 8px 0;
-    font-size: 0.9rem;
-    line-height: 1.6;
-}
-.edge-case {
-    background: #fff7ed;
-    border-left: 3px solid #f97316;
-    padding: 1rem;
-    margin: 0.5rem 0;
-    border-radius: 0 8px 8px 0;
-    font-size: 0.9rem;
-    line-height: 1.6;
-}
-.risk-item {
-    background: #fef2f2;
-    border-left: 3px solid #ef4444;
-    padding: 1rem;
-    margin: 0.5rem 0;
-    border-radius: 0 8px 8px 0;
-    font-size: 0.9rem;
-    line-height: 1.6;
-}
-.case-title {
-    font-weight: 600;
-    color: #1e293b;
-    margin-bottom: 0.25rem;
-}
-.case-detail {
-    color: #475569;
-}
-
 /* Footer */
 .footer {
     text-align: center;
@@ -110,14 +64,24 @@ st.markdown("""
 # --- System Prompt ---
 SYSTEM_PROMPT = """Tu es un expert QA senior avec 15 ans d'expérience en test logiciel.
 
-À partir de la User Story fournie, tu dois générer :
+Tu génères des cas de test CONCRETS et EXÉCUTABLES. Un testeur junior qui ne connaît pas l'application doit pouvoir exécuter chaque cas de test sans poser de question.
+
+RÈGLES CRITIQUES :
+- Chaque étape doit être SPÉCIFIQUE : pas de "cliquer sur le bouton (ou équivalent)" — précise le nom exact du bouton, de la page, du champ
+- Si un contexte applicatif est fourni, utilise-le pour personnaliser les noms de pages, boutons, URLs, rôles
+- Si aucun contexte n'est fourni, utilise des noms réalistes et cohérents (invente un contexte crédible plutôt que de rester vague)
+- Inclus des DONNÉES DE TEST concrètes dans chaque cas (emails, mots de passe, valeurs à saisir)
+- Chaque précondition doit décrire exactement comment atteindre l'état initial
+
+À partir de la User Story (et du contexte applicatif si fourni), génère :
 
 ## 1. CAS DE TEST FONCTIONNELS
 Pour chaque cas de test, fournis :
 - **Titre** : nom court et clair
-- **Préconditions** : état initial requis
-- **Étapes** : actions numérotées à exécuter
-- **Résultat attendu** : ce qui doit se passer
+- **Préconditions** : état initial requis avec les étapes pour y arriver
+- **Données de test** : valeurs concrètes à utiliser (emails, mots de passe, noms, etc.)
+- **Étapes** : actions numérotées, spécifiques et détaillées
+- **Résultat attendu** : ce qui doit se passer, avec les messages exacts si possible
 - **Priorité** : Haute / Moyenne / Basse
 
 ## 2. CAS LIMITES (EDGE CASES)
@@ -125,7 +89,7 @@ Identifie les scénarios aux frontières :
 - Valeurs limites (min, max, vide, null)
 - Cas d'erreur et comportements inattendus
 - Concurrence, timeout, données corrompues
-- Pour chaque edge case : titre + description + résultat attendu
+- Pour chaque edge case : titre + données de test + description + résultat attendu
 
 ## 3. SUGGESTIONS DE RISQUES
 Identifie les risques potentiels :
@@ -135,7 +99,7 @@ Identifie les risques potentiels :
 - Risques d'intégration
 - Pour chaque risque : titre + description + impact (Critique / Majeur / Mineur) + mitigation suggérée
 
-RÈGLES :
+RÈGLES GÉNÉRALES :
 - Sois exhaustif mais pertinent — pas de cas de test inutiles
 - Adapte le niveau de détail à la complexité de la User Story
 - Utilise un langage clair, compréhensible par un testeur junior
@@ -159,8 +123,9 @@ with st.sidebar:
     st.markdown("### 📖 Comment ça marche")
     st.markdown("""
     1. Collez votre User Story
-    2. Cliquez sur **Générer**
-    3. Copiez ou exportez les résultats
+    2. *(Optionnel)* Ajoutez le contexte de votre app
+    3. Cliquez sur **Générer**
+    4. Copiez ou exportez les résultats
     """)
 
     st.markdown("---")
@@ -171,12 +136,32 @@ mon mot de passe via email,
 afin de récupérer l'accès
 à mon compte.""", language=None)
 
-# --- Main Input ---
+    st.markdown("---")
+    st.markdown("### 💡 Exemple de contexte")
+    st.code("""App : MonBanquier.fr
+Type : app bancaire web
+URL : https://app.monbanquier.fr
+Pages : Login, Dashboard, Profil
+Rôles : Client, Conseiller, Admin
+Techno : React + API REST
+Règles mot de passe : 
+min 8 caractères, 1 majuscule, 
+1 chiffre, 1 caractère spécial""", language=None)
+
+# --- Main Inputs ---
 user_story = st.text_area(
     "📋 Votre User Story",
     height=150,
     placeholder="En tant que [rôle], je veux [action], afin de [bénéfice]...\n\nVous pouvez aussi coller des critères d'acceptance, des règles métier, ou toute description fonctionnelle."
 )
+
+with st.expander("🏢 Contexte applicatif (optionnel — recommandé pour des tests plus précis)"):
+    app_context = st.text_area(
+        "Décrivez votre application",
+        height=120,
+        placeholder="Nom de l'app, type (web/mobile), URL, pages principales, rôles utilisateurs, règles métier, stack technique, contraintes spécifiques...\n\nPlus vous donnez de contexte, plus les cas de test seront précis et exécutables.",
+        label_visibility="collapsed"
+    )
 
 # --- Generate Button ---
 col1, col2, col3 = st.columns([1, 1, 1])
@@ -186,7 +171,7 @@ with col2:
 # --- Generation Logic ---
 if generate:
     if not api_key:
-        st.error("⚠️ Entrez votre clé API Gemini dans la barre latérale.")
+        st.error("⚠️ Configuration API manquante. Contactez l'administrateur.")
     elif not user_story.strip():
         st.error("⚠️ Collez une User Story pour commencer.")
     else:
@@ -197,10 +182,13 @@ if generate:
                 system_instruction=SYSTEM_PROMPT
             )
 
+            # Build the user message with optional context
+            user_message = f"Voici la User Story à analyser :\n\n{user_story}"
+            if app_context and app_context.strip():
+                user_message = f"CONTEXTE APPLICATIF :\n{app_context}\n\n---\n\nUSER STORY À ANALYSER :\n{user_story}"
+
             with st.spinner("🔄 Analyse de la User Story et génération des tests..."):
-                response = model.generate_content(
-                    f"Voici la User Story à analyser :\n\n{user_story}"
-                )
+                response = model.generate_content(user_message)
                 result = response.text
 
             # Display results
@@ -218,7 +206,10 @@ if generate:
 
             with col_exp1:
                 # Markdown export
-                markdown_content = f"# QA Test Generator — Résultats\n\n## User Story\n{user_story}\n\n---\n\n{result}"
+                export_header = f"# QA Test Generator — Résultats\n\n## User Story\n{user_story}"
+                if app_context and app_context.strip():
+                    export_header += f"\n\n## Contexte applicatif\n{app_context}"
+                markdown_content = f"{export_header}\n\n---\n\n{result}"
                 st.download_button(
                     label="📄 Télécharger en Markdown",
                     data=markdown_content,
@@ -228,8 +219,11 @@ if generate:
                 )
 
             with col_exp2:
-                # CSV-like export
-                csv_content = f"User Story:\n{user_story}\n\n---\n\n{result}"
+                # TXT export
+                txt_header = f"User Story:\n{user_story}"
+                if app_context and app_context.strip():
+                    txt_header += f"\n\nContexte applicatif:\n{app_context}"
+                csv_content = f"{txt_header}\n\n---\n\n{result}"
                 st.download_button(
                     label="📋 Télécharger en TXT",
                     data=csv_content,
@@ -243,8 +237,6 @@ if generate:
 
         except Exception as e:
             st.error(f"❌ Erreur : {str(e)}")
-            if "API_KEY" in str(e).upper() or "INVALID" in str(e).upper():
-                st.info("💡 Vérifiez que votre clé API est correcte sur aistudio.google.com")
 
 # --- Footer ---
 st.markdown("""
