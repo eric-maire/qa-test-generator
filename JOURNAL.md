@@ -32,6 +32,10 @@
 - [x] Export CSV compatible Jira/Xray ajouté (colonnes : Test Case ID, Résumé, Description, Preconditions, Test Steps, Expected Result, Priorité)
 - [x] Fix boutons d'export : persistent après téléchargement (session_state)
 - [x] Luis a retesté la v2 — validé, nouvelle suggestion sur les données
+- [x] Import CSV dans Jira testé et validé
+- [x] Fichier de configuration Jira sauvegardé pour imports futurs
+- [x] Troncature des champs à 255 caractères (limite Jira champs texte court)
+- [x] Tentative retours à la ligne dans CSV — limitation Jira champs texte court, non résolvable sans accès admin
 
 ### Leçons apprises
 - La friction tue l'adoption : Ollama + API tokens + install = personne ne teste
@@ -43,10 +47,12 @@
 - L'export CSV Jira est la feature la plus demandée (3 testeurs indépendamment)
 - Les LLM inventent des données si on ne leur interdit pas explicitement — il faut des règles très strictes dans le prompt
 - Streamlit : les boutons disparaissent au rerun — utiliser session_state pour persister les résultats
+- Jira : les champs custom texte court sont limités à 255 caractères et ne supportent pas les retours à la ligne
+- Sauvegarder le fichier de config Jira après un import réussi = gain de temps pour les suivants
 
 ### En attente
-- [ ] Tester l'import du CSV dans Jira
-- [ ] Nouveaux retours via le post LinkedIn
+- [ ] Envoyer les messages de remerciement aux testeurs
+- [ ] Résultats du post LinkedIn (nouveaux testeurs)
 - [ ] Retour de Diawando avec VPN
 
 ---
@@ -147,7 +153,7 @@
 > Intéressant ton appli ! Je travaille également sur un projet web du même genre, connecté à Jira/Xray. Tu utilises un LLM en local ou une API Claude / OpenAI etc ?
 > Hâte de voir comme tu avances, qui sait on pourrait collaborer dans le futur sur un même projet.
 
-- **Action prise** : Collaboration déclinée pour l'instant. Reste solo.
+- **Action prise** : Collaboration déclinée pour l'instant. Reste solo. Nicolas a un produit similaire plus avancé techniquement mais en local uniquement, pas déployé.
 
 ### Testeur 10 — Lyne Voctabah
 - **A testé ?** : Oui
@@ -171,8 +177,9 @@
 | Testeurs contactés | 10+ | 11+ ✅ |
 | Testeurs qui ont testé | 5+ | 10 ✅ |
 | Retours exploitables | 3+ | 10 ✅ |
-| Itérations basées sur feedback | - | 3 (v2 contexte, v3 prompt, v4 CSV) |
+| Itérations basées sur feedback | - | 4 (v2 contexte, v3 prompt, v4 CSV, v5 fix boutons) |
 | Post LinkedIn publié | 1 | 1 ✅ |
+| Import Jira validé | - | ✅ |
 
 ---
 
@@ -186,10 +193,12 @@
 7. **Export CSV Jira/Xray** : ajouté suite retours Aymen, Nicolas, Moez
 8. **Collaboration Nicolas** : déclinée pour l'instant, reste solo
 9. **Repo GitHub public** : nécessaire pour Streamlit Cloud gratuit, code non sensible
+10. **Retours à la ligne CSV** : impossible dans champs texte court Jira sans accès admin — accepté comme limitation
 
 ## Backlog (demandé par les testeurs, pas encore planifié)
 - [x] Corriger le prompt — ne pas inventer de données (Luis v2)
 - [x] Export CSV compatible Jira/Xray (Aymen, Nicolas, Moez)
+- [x] Import Jira testé + fichier de config sauvegardé
 - [ ] Export Gherkin / BDD (Aymen)
 - [ ] Historique / sauvegarde des générations (Lyne)
 - [ ] Génération de tests d'acceptance / TA (Moez)
