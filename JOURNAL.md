@@ -9,7 +9,7 @@
 - **Repo** : https://github.com/TesteurGenAI/qa-test-generator
 
 ---
-
+ 
 ## Phase 1 — Jours 1 à 30 : Prototype
 
 ### Jour 1 (15-16/03/2026) — ✅ FAIT
