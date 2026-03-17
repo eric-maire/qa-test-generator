@@ -116,9 +116,9 @@ Chaque objet du tableau doit avoir exactement ces champs :
 - "Test Case ID": identifiant unique (TC-001, TC-002, etc.)
 - "Summary": le titre du cas de test
 - "Description": description courte du cas de test
-- "Preconditions": les préconditions (texte brut, pas de Markdown)
-- "Test Steps": toutes les étapes numérotées sur des lignes séparées (texte brut)
-- "Expected Result": tous les résultats attendus (texte brut)
+- "Preconditions": les préconditions, chaque précondition sur une ligne séparée avec un numéro (1. xxx\\n2. xxx\\n3. xxx)
+- "Test Steps": les étapes, CHAQUE ÉTAPE SUR UNE LIGNE SÉPARÉE avec un numéro (1. xxx\\n2. xxx\\n3. xxx). Utilise \\n pour séparer les lignes.
+- "Expected Result": les résultats attendus, CHAQUE RÉSULTAT SUR UNE LIGNE SÉPARÉE avec un numéro (1. xxx\\n2. xxx). Utilise \\n pour séparer les lignes.
 - "Priority": "Haute", "Moyenne" ou "Basse" (en français)
 
 RÈGLES STRICTES :
@@ -129,6 +129,7 @@ RÈGLES STRICTES :
 - Le JSON doit être valide et parsable directement
 - Garde les priorités en français : "Haute", "Moyenne", "Basse"
 - Supprime tout formatage Markdown (**, ##, *, etc.) dans les valeurs
+- IMPORTANT : utilise le caractère newline \\n entre chaque étape/résultat, PAS un espace ou un point-virgule
 """
 
 # --- Header ---
