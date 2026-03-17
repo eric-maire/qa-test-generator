@@ -180,13 +180,16 @@ def json_to_jira_csv(test_cases_json):
     writer = csv.DictWriter(output, fieldnames=fieldnames, quoting=csv.QUOTE_ALL)
     writer.writeheader()
     for tc in test_cases_json:
+        def trunc(val, limit=255):
+            val = val or ""
+            return val[:252] + "..." if len(val) > limit else val
         writer.writerow({
             "Test Case ID": tc.get("Test Case ID", ""),
-            "Résumé": tc.get("Summary", ""),
+            "Résumé": trunc(tc.get("Summary", "")),
             "Description": tc.get("Description", ""),
-            "Preconditions": tc.get("Preconditions", ""),
-            "Test Steps": tc.get("Test Steps", ""),
-            "Expected Result": tc.get("Expected Result", ""),
+            "Preconditions": trunc(tc.get("Preconditions", "")),
+            "Test Steps": trunc(tc.get("Test Steps", "")),
+            "Expected Result": trunc(tc.get("Expected Result", "")),
             "Priorité": tc.get("Priority", "Moyenne"),
         })
     return output.getvalue()
