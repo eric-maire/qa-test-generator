@@ -29,13 +29,23 @@
 - [x] 11 testeurs au total — 10 retours exploitables
 - [x] Post LinkedIn publié (carrousel + CTA "commente QA")
 - [x] Prompt corrigé : plus de données inventées — [À DÉFINIR PAR LE TESTEUR] quand pas de contexte
-- [x] Export CSV compatible Jira/Xray ajouté (colonnes : Test Case ID, Résumé, Description, Preconditions, Test Steps, Expected Result, Priorité)
+- [x] Export CSV compatible Jira/Xray ajouté
 - [x] Fix boutons d'export : persistent après téléchargement (session_state)
 - [x] Luis a retesté la v2 — validé, nouvelle suggestion sur les données
 - [x] Import CSV dans Jira testé et validé
 - [x] Fichier de configuration Jira sauvegardé pour imports futurs
 - [x] Troncature des champs à 255 caractères (limite Jira champs texte court)
-- [x] Tentative retours à la ligne dans CSV — limitation Jira champs texte court, non résolvable sans accès admin
+- [x] Newsletter LinkedIn "Le Testeur Augmenté" configurée
+
+### Jour 3 (18/03/2026) — ✅ FAIT
+- [x] Post LinkedIn : 2 407 impressions, 48 réactions, 18 commentaires, 5 republications
+- [x] 9 personnes ont commenté "QA" — tous contactés en DM avec le lien
+- [x] Nouveau contact : Elodie Juino — intéressée, veut une démo après sa recette
+- [x] Export Gherkin / BDD ajouté — fichier .feature téléchargeable
+- [x] Preview Gherkin intégré dans l'app (expander avec coloration syntaxique)
+- [x] 4 formats d'export disponibles : Markdown, TXT, CSV Jira, Gherkin
+- [x] 5 itérations produit livrées en 3 jours
+- [x] Messages envoyés à Lyne et Aymen pour retester le Gherkin
 
 ### Leçons apprises
 - La friction tue l'adoption : Ollama + API tokens + install = personne ne teste
@@ -48,12 +58,15 @@
 - Les LLM inventent des données si on ne leur interdit pas explicitement — il faut des règles très strictes dans le prompt
 - Streamlit : les boutons disparaissent au rerun — utiliser session_state pour persister les résultats
 - Jira : les champs custom texte court sont limités à 255 caractères et ne supportent pas les retours à la ligne
-- Sauvegarder le fichier de config Jira après un import réussi = gain de temps pour les suivants
+- Le CTA "commente QA" sur LinkedIn génère des leads qualifiés — 9 commentaires QA en 24h
+- Montrer aux testeurs que leur feedback devient une feature en 24h crée un cycle vertueux de confiance
 
 ### En attente
-- [ ] Envoyer les messages de remerciement aux testeurs
-- [ ] Résultats du post LinkedIn (nouveaux testeurs)
+- [ ] Retours des 9 nouveaux leads LinkedIn
+- [ ] Retour de Lyne et Aymen sur le Gherkin
 - [ ] Retour de Diawando avec VPN
+- [ ] Retour d'Elodie après sa recette (relancer dans 2 semaines)
+- [ ] Premier numéro de la newsletter "Le Testeur Augmenté"
 
 ---
 
@@ -107,18 +120,14 @@
 
 ### Testeur 5 — Ken Defossez
 - **A testé ?** : Oui
-- **Date** : 17/03/2026
+- **Date** : 17-18/03/2026
 - **Retour :**
 
-> Je viens de tester ton outil QA version web, congratz ! Je dois justement travailler sur quelque chose de similaire chez mon client, ca m'intéresse de savoir qu'est-ce qu'il y a sous le capot.
-> Petit retour après mon premier test de l'outil, il m'a parlé de PixelConnect sans que j'y fasse référence. Mais sinon la disjonction des cas de test et risques pour ma US est top !
+> Je viens de tester ton outil QA version web, congratz ! Petit retour : il m'a parlé de PixelConnect sans que j'y fasse référence. Mais sinon la disjonction des cas de test et risques pour ma US est top !
 
-- **Action prise** : Bug PixelConnect = le LLM inventait un nom d'app. Corrigé dans le prompt v3.
+> Bonsoir Amadou j'ai une semaine chargée mais des que j'ai un moment je me remets dessus pour le challenger davantage. On nous demande des initiatives AI, la tienne est particulièrement intéressante et aboutie 👏
 
-> Bonsoir Amadou j'ai une semaine chargée mais des que j'ai un moment je me remets dessus pour le challenger davantage. Ravi de savoir que nos retours te sont bénéfiques.
-> Et avec plaisir pour en discuter. On nous demande des initiatives AI, la tienne est particulièrement intéressante et aboutie 👏
-> Je te tiens informé et continue de suivre tes projets et publications.
-> A bientôt, bonne soirée 👍
+- **Action prise** : Bug PixelConnect corrigé (prompt v3). Signal B2B fort — "on nous demande des initiatives AI".
 
 ### Testeur 6 — Aymen Ismail
 - **A testé ?** : Oui
@@ -126,9 +135,9 @@
 - **Retour :**
 
 > Ton appli fonctionne parfaitement et j'ai pu transformer les cas de test générés en format csv pour les intégrer directement dans JIRA/XRAY.
-> Ca pourra être une idée pour évoluer ton appli en ajoutant d'autres façons d'exporter les cas de test : en langage gherkin ou manuel sous forme de steps, sous fichier csv directement exploitable dans JIRA/XRAY.
+> Ca pourra être une idée pour évoluer ton appli en ajoutant d'autres façons d'exporter : en langage gherkin ou sous fichier csv directement exploitable dans JIRA/XRAY.
 
-- **Action prise** : Export CSV Jira/Xray ajouté. Export Gherkin noté au backlog.
+- **Action prise** : Export CSV Jira/Xray ajouté (Jour 2). Export Gherkin ajouté (Jour 3). Message envoyé pour retester.
 
 ### Testeur 7 — Tasnim Ferchichi
 - **A testé ?** : Oui
@@ -136,7 +145,7 @@
 - **Retour :**
 
 > Comme précisé sur le site il faut bien entendu donner des infos concernant le contexte sinon ça a l'air assez cohérent !
-> Pour vérifier les premiers tests, peut être qu'il serait bien de faire une matrice de test et avec les résultats de streamlit, cocher/vérifier si effectivement ça match bien.
+> Pour vérifier les premiers tests, peut être qu'il serait bien de faire une matrice de test.
 
 - **Action prise** : Matrice de test notée au backlog.
 
@@ -155,88 +164,83 @@
 - **Date** : 17/03/2026
 - **Retour :**
 
-> Intéressant ton appli ! Je travaille également sur un projet web du même genre, connecté à Jira/Xray. Tu utilises un LLM en local ou une API Claude / OpenAI etc ?
+> Intéressant ton appli ! Je travaille également sur un projet web du même genre, connecté à Jira/Xray.
 > Hâte de voir comme tu avances, qui sait on pourrait collaborer dans le futur sur un même projet.
 
-- **Action prise** : Collaboration déclinée pour l'instant. Reste solo. Nicolas a un produit similaire plus avancé techniquement mais en local uniquement, pas déployé.
+- **Action prise** : Collaboration déclinée pour l'instant. Reste solo.
 
 ### Testeur 10 — Lyne Voctabah
 - **A testé ?** : Oui
-- **Date** : 17/03/2026
+- **Date** : 17-18/03/2026
 - **Retour :**
 
 > Est-ce que le lien sauvegarde les user stories ?
-> En tout cas, je trouve que l'outil fait vraiment gagner du temps sur la rédaction.
-> Les cas de test sont bien détaillés et faciles à comprendre.
-> J'aime aussi le fait que ce soit hyper simple : tu colles directement ta user story, sans formulaire à remplir, sans création de compte ni vérification type captcha.
+> Je trouve que l'outil fait vraiment gagner du temps sur la rédaction. Les cas de test sont bien détaillés et faciles à comprendre. J'aime le fait que ce soit hyper simple.
 
-- **Action prise** : Historique/sauvegarde noté au backlog.
+> Je dirai utiliser l'approche BDD pour les cas de test ?
 
----
-> Je dirai utiliser l’approche BDD pour les cas de test ?
-> Beaucoup de courage à toi ✨😊👏
+- **Action prise** : Historique noté au backlog. Export Gherkin/BDD ajouté (Jour 3). Message envoyé pour retester.
 
 ### Testeur 11 — Elodie Juino
-- **A testé ?** : non
+- **A testé ?** : Non (pas encore)
 - **Date** : 18/03/2026
 - **Retour :**
 
-> Merci, on est en client lourd, est ce compatible ? 
+> Merci, on est en client lourd, est ce compatible ?
+> Ça sera avec plaisir après notre grand rech actuel. Ton outil m'aidera sûrement beaucoup.
 
-> Moi (Amadou)
-> Bonjour Élodie,
-> Oui, justement 👍
+- **Action prise** : Lead chaud. Relancer dans 2 semaines après sa recette.
 
-> Comme c’est une version web, il n’y a rien à installer côté poste ni à intégrer dans votre SI.
-> Donc aucun impact sur votre environnement client lourd.
+### Leads LinkedIn (post carrousel — 18/03/2026)
+- Lewis Dieu Ne Dort BABE YAKA — Senior QA Engineer — commenté "QA" — DM envoyé
+- Ali KAR — Ingénieur Testing Agile ISTQB — commenté "QA" — DM envoyé
+- Lyne VOCTABAH — commenté "QA" — déjà testeuse
+- Kalidou BA — commenté "QA" — déjà testeur
+- Ahlem Ayari — Étudiante ISITCOM — commenté "QA" — DM envoyé
+- Abdoulahi DIABY — Consultant QA SAP — commenté "QA" — DM envoyé
+- Ala Eddine Benna — Testeur logiciel ISTQB — commenté "QA" — DM envoyé
+- Abdelkrim BOUHRAOUA — QA Testeur ISTQB — commenté "QA" — DM envoyé
+- Abdessamad Nacih — Ingénieur QA — commenté "QA" — DM envoyé
+- Elodie Juino — commenté "QA !" — déjà en contact DM
 
-> Aujourd’hui, l’outil est utilisé en mode “assistant” :
-> tu colles une user story et tu récupères rapidement des cas de test exploitables.
-
-> Ça s’intègre très bien dans vos pratiques actuelles sans rien changer à votre stack.
-
-> Si besoin, je peux aussi te montrer comment on peut aller plus loin (export Jira, adaptation à vos standards, etc.).
-
-> Tu veux que je te fasse une démo rapide ?
-
-**Elodie**
-> Merci Amadou
-> Ça sera avec plaisir après notre grand rech actuel
-> Ton outil m'aidera sûrement beaucoup 
-
-- **Action prise** : N/A
+---
 
 ## Métriques
 
 | Métrique | Objectif Phase 1 | Actuel |
 |----------|-----------------|--------|
 | Prototype utilisable | ✅ | ✅ |
-| Testeurs contactés | 10+ | 11+ ✅ |
+| Testeurs confirmés | 10+ | 11 ✅ |
+| Leads LinkedIn (DM envoyés) | - | 7 nouveaux |
 | Testeurs qui ont testé | 5+ | 10 ✅ |
 | Retours exploitables | 3+ | 10 ✅ |
-| Itérations basées sur feedback | - | 4 (v2 contexte, v3 prompt, v4 CSV, v5 fix boutons) |
-| Post LinkedIn publié | 1 | 1 ✅ |
+| Itérations produit | - | 5 (contexte, prompt, CSV, fix boutons, Gherkin) |
+| Formats d'export | - | 4 (Markdown, TXT, CSV Jira, Gherkin) |
+| Post LinkedIn | 1 | 1 ✅ (2407 impressions, 48 réactions, 18 commentaires) |
 | Import Jira validé | - | ✅ |
+| Newsletter configurée | - | ✅ ("Le Testeur Augmenté") |
 
 ---
 
 ## Décisions prises
 1. **Stack** : Streamlit + Gemini 2.5 Flash (pas Ollama)
-2. **Architecture** : 1 seul appel LLM (pas 3 agents) + 1 appel pour conversion CSV
+2. **Architecture** : 1 appel LLM principal + 1 appel CSV + 1 appel Gherkin
 3. **Go-to-market** : Option A — PLG, self-service, 19-49€/mois
 4. **Priorité** : Retours terrain AVANT nouvelles features
-5. **Champ contexte applicatif** : ajouté suite retour Luis — améliore drastiquement la qualité des tests générés
-6. **Prompt strict** : ne jamais inventer de données — [À DÉFINIR PAR LE TESTEUR] quand pas de contexte
+5. **Champ contexte applicatif** : ajouté suite retour Luis
+6. **Prompt strict** : ne jamais inventer de données — [À DÉFINIR PAR LE TESTEUR]
 7. **Export CSV Jira/Xray** : ajouté suite retours Aymen, Nicolas, Moez
-8. **Collaboration Nicolas** : déclinée pour l'instant, reste solo
-9. **Repo GitHub public** : nécessaire pour Streamlit Cloud gratuit, code non sensible
-10. **Retours à la ligne CSV** : impossible dans champs texte court Jira sans accès admin — accepté comme limitation
+8. **Export Gherkin/BDD** : ajouté suite retours Aymen, Lyne
+9. **Collaboration Nicolas** : déclinée pour l'instant, reste solo
+10. **Repo GitHub public** : nécessaire pour Streamlit Cloud gratuit
+11. **Formation** : en mode maintenance, focus sur le produit QA Test Generator
+12. **Newsletter** : "Le Testeur Augmenté" — hebdomadaire — premier numéro à écrire
 
-## Backlog (demandé par les testeurs, pas encore planifié)
+## Backlog (demandé par les testeurs)
 - [x] Corriger le prompt — ne pas inventer de données (Luis v2)
 - [x] Export CSV compatible Jira/Xray (Aymen, Nicolas, Moez)
 - [x] Import Jira testé + fichier de config sauvegardé
-- [ ] Export Gherkin / BDD (Aymen)
+- [x] Export Gherkin / BDD (Aymen, Lyne)
 - [ ] Historique / sauvegarde des générations (Lyne)
 - [ ] Génération de tests d'acceptance / TA (Moez)
 - [ ] Matrice de test (Tasnim)
