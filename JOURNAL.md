@@ -115,6 +115,11 @@
 
 - **Action prise** : Bug PixelConnect = le LLM inventait un nom d'app. Corrigé dans le prompt v3.
 
+> Bonsoir Amadou j'ai une semaine chargée mais des que j'ai un moment je me remets dessus pour le challenger davantage. Ravi de savoir que nos retours te sont bénéfiques.
+> Et avec plaisir pour en discuter. On nous demande des initiatives AI, la tienne est particulièrement intéressante et aboutie 👏
+> Je te tiens informé et continue de suivre tes projets et publications.
+> A bientôt, bonne soirée 👍
+
 ### Testeur 6 — Aymen Ismail
 - **A testé ?** : Oui
 - **Date** : 17/03/2026
@@ -168,6 +173,10 @@
 - **Action prise** : Historique/sauvegarde noté au backlog.
 
 ---
+> Je dirai utiliser l’approche BDD pour les cas de test ?
+> Beaucoup de courage à toi ✨😊👏
+
+
 
 ## Métriques
 
