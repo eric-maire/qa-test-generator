@@ -1,416 +1,256 @@
-import streamlit as st
-import google.generativeai as genai
-import json
-import time
-import csv
-import io
-import re
+# 🧪 QA Test Generator — Journal de bord (Plan 90 jours)
 
+---
 
-# --- Page Config ---
-st.set_page_config(
-    page_title="QA Test Generator",
-    page_icon="🧪",
-    layout="wide"
-)
+## Infos projet
+- **Début du plan** : 15/03/2026
+- **Objectif 90 jours** : 100-500 utilisateurs réels + retours terrain exploitables
+- **URL app** : https://app-test-generator.streamlit.app
+- **Repo** : https://github.com/TesteurGenAI/qa-test-generator
 
-# --- Custom CSS ---
-st.markdown("""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
+---
 
-.stApp { font-family: 'DM Sans', sans-serif; }
+## Phase 1 — Jours 1 à 30 : Prototype
 
-.main-header { text-align: center; padding: 2rem 0 1rem 0; }
-.main-header h1 {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 2.2rem; font-weight: 700; color: #1a1a2e; margin-bottom: 0.3rem;
-}
-.main-header p { font-size: 1.1rem; color: #6b7280; margin-top: 0; }
-.badge {
-    display: inline-block; background: #f0fdf4; color: #16a34a;
-    font-size: 0.75rem; font-weight: 600; padding: 0.25rem 0.75rem;
-    border-radius: 999px; border: 1px solid #bbf7d0; margin-bottom: 1rem;
-}
-.footer {
-    text-align: center; color: #9ca3af; font-size: 0.8rem;
-    padding: 2rem 0 1rem 0; border-top: 1px solid #f3f4f6; margin-top: 3rem;
-}
-</style>
-""", unsafe_allow_html=True)
+### Jour 1 (15-16/03/2026) — ✅ FAIT
+- [x] Prompt QA qui génère cas de test, edge cases, risques
+- [x] App Streamlit déployée sur Streamlit Cloud
+- [x] API Gemini 2.5 Flash connectée (secret Streamlit)
+- [x] Clé API masquée — zéro config pour les testeurs
+- [x] Lien envoyé à 8 testeurs
+- [x] Retours projet précédent : 8/8 n'avaient pas testé (trop de friction)
+- [x] 4 testeurs ont testé la v1 et donné des retours
+- [x] Itération v2 : ajout champ "Contexte applicatif" + prompt amélioré pour des cas de test exécutables
+- [x] Message envoyé à Luis pour retester la v2
+- [x] .gitignore ajouté
+- [x] Journal de bord créé
 
-# --- System Prompt ---
-SYSTEM_PROMPT = """Tu es un expert QA senior avec 15 ans d'expérience en test logiciel.
+### Jour 2 (17/03/2026) — ✅ FAIT
+- [x] 11 testeurs au total — 10 retours exploitables
+- [x] Post LinkedIn publié (carrousel + CTA "commente QA")
+- [x] Prompt corrigé : plus de données inventées — [À DÉFINIR PAR LE TESTEUR] quand pas de contexte
+- [x] Export CSV compatible Jira/Xray ajouté
+- [x] Fix boutons d'export : persistent après téléchargement (session_state)
+- [x] Luis a retesté la v2 — validé, nouvelle suggestion sur les données
+- [x] Import CSV dans Jira testé et validé
+- [x] Fichier de configuration Jira sauvegardé pour imports futurs
+- [x] Troncature des champs à 255 caractères (limite Jira champs texte court)
+- [x] Newsletter LinkedIn "Le Testeur Augmenté" configurée
 
-Tu génères des cas de test CONCRETS et EXÉCUTABLES. Un testeur junior qui ne connaît pas l'application doit pouvoir exécuter chaque cas de test sans poser de question.
+### Jour 3 (18/03/2026) — ✅ FAIT
+- [x] Post LinkedIn : 2 407 impressions, 48 réactions, 18 commentaires, 5 republications
+- [x] 9 personnes ont commenté "QA" — tous contactés en DM avec le lien
+- [x] Nouveau contact : Elodie Juino — intéressée, veut une démo après sa recette
+- [x] Export Gherkin / BDD ajouté — fichier .feature téléchargeable
+- [x] Preview Gherkin intégré dans l'app (expander avec coloration syntaxique)
+- [x] 4 formats d'export disponibles : Markdown, TXT, CSV Jira, Gherkin
+- [x] 5 itérations produit livrées en 3 jours
+- [x] Messages envoyés à Lyne et Aymen pour retester le Gherkin
 
-=== RÈGLE ABSOLUE SUR LES DONNÉES ===
+### Leçons apprises
+- La friction tue l'adoption : Ollama + API tokens + install = personne ne teste
+- Zéro installation = condition non négociable
+- "Pas eu le temps" = "trop compliqué pour que je fasse l'effort"
+- Le contexte applicatif change tout : sans contexte, les cas de test sont génériques et inexécutables (retour Luis)
+- Les retours terrain sont plus utiles que la réflexion solo — itérer en < 24h crée de la confiance
+- Bug Diawando = restriction géo API Gemini (Guinée-Conakry), pas un bug de code
+- L'export CSV Jira est la feature la plus demandée (3 testeurs indépendamment)
+- Les LLM inventent des données si on ne leur interdit pas explicitement — il faut des règles très strictes dans le prompt
+- Streamlit : les boutons disparaissent au rerun — utiliser session_state pour persister les résultats
+- Jira : les champs custom texte court sont limités à 255 caractères et ne supportent pas les retours à la ligne
+- Le CTA "commente QA" sur LinkedIn génère des leads qualifiés — 9 commentaires QA en 24h
+- Montrer aux testeurs que leur feedback devient une feature en 24h crée un cycle vertueux de confiance
 
-Si un contexte applicatif est fourni :
-- Utilise UNIQUEMENT les informations données (noms de pages, boutons, URLs, rôles, règles métier)
-- Ne complète pas, n'invente pas, n'extrapole pas au-delà de ce qui est fourni
-- Si certaines données manquent malgré le contexte, marque-les [À DÉFINIR PAR LE TESTEUR]
+### En attente
+- [ ] Retours des 9 nouveaux leads LinkedIn
+- [ ] Retour de Lyne et Aymen sur le Gherkin
+- [ ] Retour de Diawando avec VPN
+- [ ] Retour d'Elodie après sa recette (relancer dans 2 semaines)
+- [ ] Premier numéro de la newsletter "Le Testeur Augmenté"
 
-Si AUCUN contexte applicatif n'est fourni :
-- N'INVENTE AUCUN contexte. Pas de nom d'application fictif, pas d'URL inventée, pas de nom de bouton supposé, pas de nom de page imaginaire
-- N'écris JAMAIS de section "Contexte Applicatif Inventé" ou "Contexte supposé" ou similaire
-- Pour CHAQUE donnée non fournie, écris exactement : [À DÉFINIR PAR LE TESTEUR]
-- Cela inclut : URLs, noms de boutons, noms de pages, messages d'erreur, emails, mots de passe, identifiants, durées de session, règles de validation
+---
 
-Exemples corrects SANS contexte :
-- "Naviguer vers [URL DE LA PAGE DE CONNEXION — À DÉFINIR PAR LE TESTEUR]"
-- "Cliquer sur le bouton [NOM DU BOUTON DE CONNEXION — À DÉFINIR PAR LE TESTEUR]"
-- "Email de test : [À DÉFINIR PAR LE TESTEUR]"
-- "Vérifier que le message d'erreur [MESSAGE EXACT — À DÉFINIR PAR LE TESTEUR] s'affiche"
+## Retours testeurs
 
-Exemples INTERDITS sans contexte :
-- "Naviguer vers https://www.monapp.com/login" ❌
-- "Cliquer sur le bouton 'Se connecter'" ❌
-- "Email de test : jean.dupont@email.com" ❌
-- "L'application PixelConnect affiche..." ❌
+### Testeur 1 — Luis Cavalheiro
+- **A testé ?** : Oui (v1 + v2)
+- **Date** : 16-17/03/2026
+- **Retour v1 :**
 
-=== FIN RÈGLE ABSOLUE ===
+> Je sais que c'est un prototype mais je vois 2 grandes limitations :
+> 1. Comment passer le contexte de la User Story
+> 2. Comment generer les données de test
+> Pour les quelques cas que j'ai essayé, je ne vois pas un user delta etre capable d'executer les cas de tests sans une bonne connaissance de l'application. Pour moi, un bon cas de test doit contenir suffisamment d'information que "mr tout le monde" peut l'executer sans poser de question...
 
-RÈGLES DE RÉDACTION :
-- Chaque étape doit être SPÉCIFIQUE et détaillée
-- Chaque précondition doit décrire exactement comment atteindre l'état initial
+- **Retour v2 :**
 
-À partir de la User Story (et du contexte applicatif si fourni), génère :
+> C'est beaucoup mieux. Maintenant d'un point de vue pratique l'appli devrait demander au user de spécifier les données quand celles ci ne sont pas définies au lieu des générer des fausses données
 
-## 1. CAS DE TEST FONCTIONNELS
-Pour chaque cas de test, fournis :
-- **Titre** : nom court et clair
-- **Préconditions** : état initial requis avec les étapes pour y arriver
-- **Données de test** : valeurs fournies par le contexte OU [À DÉFINIR PAR LE TESTEUR] si non fournies
-- **Étapes** : actions numérotées, spécifiques et détaillées
-- **Résultat attendu** : ce qui doit se passer, avec les messages exacts si fournis dans le contexte, sinon [À DÉFINIR PAR LE TESTEUR]
-- **Priorité** : Haute / Moyenne / Basse
+- **Actions prises** : Ajout champ contexte (v2), puis correction prompt pour ne plus inventer de données (v3)
 
-## 2. CAS LIMITES (EDGE CASES)
-Identifie les scénarios aux frontières :
-- Valeurs limites (min, max, vide, null)
-- Cas d'erreur et comportements inattendus
-- Concurrence, timeout, données corrompues
-- Pour chaque edge case : titre + données de test + description + résultat attendu
+### Testeur 2 — Moez Ben Khaled
+- **A testé ?** : Oui (v1)
+- **Date** : 16/03/2026
+- **Retour :**
 
-## 3. SUGGESTIONS DE RISQUES
-Identifie les risques potentiels :
-- Risques fonctionnels
-- Risques de performance
-- Risques de sécurité
-- Risques d'intégration
-- Pour chaque risque : titre + description + impact (Critique / Majeur / Mineur) + mitigation suggérée
+> J'ai testé l'outil cet aprem et c'est vraiment top.
+> Juste une question : Des fois les PO rédigent mal les tests d'acceptation et c'est très important pour la synchro Squash/Jira et l'automatisation par exemple, y a t'il un moyen d'évoluer l'outil pour la création des TA avec les cas de test stp?
 
-RÈGLES GÉNÉRALES :
-- Sois exhaustif mais pertinent — pas de cas de test inutiles
-- Adapte le niveau de détail à la complexité de la User Story
-- Utilise un langage clair, compréhensible par un testeur junior
-- Réponds en français sauf pour les termes techniques standards
-- Structure ta réponse en Markdown clair avec les 3 sections ci-dessus
-"""
+- **Action prise** : Noté pour backlog — génération de tests d'acceptance (TA)
 
-# --- CSV Conversion Prompt ---
-CSV_CONVERSION_PROMPT = """Tu es un assistant qui convertit des cas de test en format JSON strict pour import Jira.
+### Testeur 3 — Romain De Page
+- **A testé ?** : Oui (v1)
+- **Date** : 16/03/2026
+- **Retour :**
 
-À partir des cas de test fournis, extrais UNIQUEMENT les cas de test fonctionnels et les cas limites (PAS les risques) et retourne un tableau JSON.
+> J'ai testé ton outil il est vraiment bien. Tu l'as fait avec quoi?
+> Oui niquel j'ai bien eu les case de tests et je les ai même exportés en .txt pour voir c'est vraiment bien
 
-Chaque objet du tableau doit avoir exactement ces champs :
-- "Test Case ID": identifiant unique (TC-001, TC-002, etc.)
-- "Summary": le titre du cas de test
-- "Description": description courte du cas de test
-- "Preconditions": les préconditions, chaque précondition sur une ligne séparée avec un numéro (1. xxx\\n2. xxx\\n3. xxx)
-- "Test Steps": les étapes, CHAQUE ÉTAPE SUR UNE LIGNE SÉPARÉE avec un numéro (1. xxx\\n2. xxx\\n3. xxx). Utilise \\n pour séparer les lignes.
-- "Expected Result": les résultats attendus, CHAQUE RÉSULTAT SUR UNE LIGNE SÉPARÉE avec un numéro (1. xxx\\n2. xxx). Utilise \\n pour séparer les lignes.
-- "Priority": "Haute", "Moyenne" ou "Basse" (en français)
+- **Action prise** : Aucune — retour positif, export fonctionne
 
-RÈGLES STRICTES :
-- Retourne UNIQUEMENT le tableau JSON, rien d'autre
-- Pas de texte avant ou après le JSON
-- Pas de backticks ```json
-- Pas de commentaires
-- Le JSON doit être valide et parsable directement
-- Garde les priorités en français : "Haute", "Moyenne", "Basse"
-- Supprime tout formatage Markdown (**, ##, *, etc.) dans les valeurs
-- IMPORTANT : utilise le caractère newline \\n entre chaque étape/résultat, PAS un espace ou un point-virgule
-"""
+### Testeur 4 — Diawando DIAWARA
+- **A testé ?** : Partiellement
+- **Date** : 16/03/2026
+- **Retour :**
 
-# --- Gherkin Conversion Prompt ---
-GHERKIN_CONVERSION_PROMPT = """Tu es un expert QA qui convertit des cas de test en scénarios Gherkin (BDD).
+> Je constate que les cas de tests ne sont pas générés après soumission de la user story.
+> Je vais activer mon vpn et reprendre.
 
-À partir des cas de test fournis, génère des scénarios au format Gherkin strict.
+- **Action prise** : Restriction géographique API Gemini (Guinée-Conakry). En attente retour avec VPN.
 
-FORMAT OBLIGATOIRE :
+### Testeur 5 — Ken Defossez
+- **A testé ?** : Oui
+- **Date** : 17-18/03/2026
+- **Retour :**
 
-Feature: [Titre dérivé de la User Story]
+> Je viens de tester ton outil QA version web, congratz ! Petit retour : il m'a parlé de PixelConnect sans que j'y fasse référence. Mais sinon la disjonction des cas de test et risques pour ma US est top !
 
-  Scenario: [Titre du cas de test]
-    Given [précondition 1]
-    And [précondition 2]
-    When [action utilisateur 1]
-    And [action utilisateur 2]
-    Then [résultat attendu 1]
-    And [résultat attendu 2]
+> Bonsoir Amadou j'ai une semaine chargée mais des que j'ai un moment je me remets dessus pour le challenger davantage. On nous demande des initiatives AI, la tienne est particulièrement intéressante et aboutie 👏
 
-RÈGLES STRICTES :
-- Utilise les mots-clés Gherkin en ANGLAIS : Feature, Scenario, Given, When, Then, And, But
-- Le contenu des étapes est en FRANÇAIS
-- Chaque cas de test fonctionnel ET chaque cas limite devient un Scenario
-- NE PAS inclure les risques — uniquement les cas de test
-- Given = préconditions et état initial
-- When = actions de l'utilisateur
-- Then = résultats attendus et vérifications
-- Utilise "And" pour les étapes supplémentaires dans chaque section
-- Si des données sont marquées [À DÉFINIR PAR LE TESTEUR], garde-les telles quelles dans le Gherkin
-- Pour les scénarios avec plusieurs jeux de données, utilise Scenario Outline avec Examples
-- Pas de formatage Markdown — du texte brut Gherkin uniquement
-- Sépare chaque Scenario par une ligne vide
-"""
+- **Action prise** : Bug PixelConnect corrigé (prompt v3). Signal B2B fort — "on nous demande des initiatives AI".
 
-# --- Header ---
-st.markdown("""
-<div class="main-header">
-    <div class="badge">MVP — Phase 1</div>
-    <h1>🧪 QA Test Generator</h1>
-    <p>Collez une User Story → Obtenez vos cas de test en 30 secondes</p>
-</div>
-""", unsafe_allow_html=True)
+### Testeur 6 — Aymen Ismail
+- **A testé ?** : Oui
+- **Date** : 17/03/2026
+- **Retour :**
 
-# --- API Key (from secrets) ---
-api_key = st.secrets.get("GEMINI_API_KEY", "")
+> Ton appli fonctionne parfaitement et j'ai pu transformer les cas de test générés en format csv pour les intégrer directement dans JIRA/XRAY.
+> Ca pourra être une idée pour évoluer ton appli en ajoutant d'autres façons d'exporter : en langage gherkin ou sous fichier csv directement exploitable dans JIRA/XRAY.
 
-with st.sidebar:
-    st.markdown("### 📖 Comment ça marche")
-    st.markdown("""
-    1. Collez votre User Story
-    2. *(Optionnel)* Ajoutez le contexte de votre app
-    3. Cliquez sur **Générer**
-    4. Copiez ou exportez les résultats
-    """)
+- **Action prise** : Export CSV Jira/Xray ajouté (Jour 2). Export Gherkin ajouté (Jour 3). Message envoyé pour retester.
 
-    st.markdown("---")
-    st.markdown("### 💡 Exemple de User Story")
-    st.code("""En tant qu'utilisateur,
-je veux pouvoir réinitialiser
-mon mot de passe via email,
-afin de récupérer l'accès
-à mon compte.""", language=None)
+### Testeur 7 — Tasnim Ferchichi
+- **A testé ?** : Oui
+- **Date** : 17/03/2026
+- **Retour :**
 
-    st.markdown("---")
-    st.markdown("### 💡 Exemple de contexte")
-    st.code("""App : MonBanquier.fr
-Type : app bancaire web
-URL : https://app.monbanquier.fr
-Pages : Login, Dashboard, Profil
-Rôles : Client, Conseiller, Admin
-Techno : React + API REST
-Règles mot de passe : 
-min 8 caractères, 1 majuscule, 
-1 chiffre, 1 caractère spécial""", language=None)
+> Comme précisé sur le site il faut bien entendu donner des infos concernant le contexte sinon ça a l'air assez cohérent !
+> Pour vérifier les premiers tests, peut être qu'il serait bien de faire une matrice de test.
 
-# --- Helper: Convert JSON to CSV ---
-def json_to_jira_csv(test_cases_json):
-    """Convert parsed JSON test cases to CSV string for Jira import."""
-    output = io.StringIO()
-    fieldnames = ["Test Case ID", "Résumé", "Description", "Preconditions", "Test Steps", "Expected Result", "Priorité"]
-    writer = csv.DictWriter(output, fieldnames=fieldnames, quoting=csv.QUOTE_ALL)
-    writer.writeheader()
-    for tc in test_cases_json:
-        def format_steps(val):
-            """Force un retour à la ligne avant chaque numéro d'étape."""
-            val = val or ""
-            val = re.sub(r'(?<!\n)\s*(\d+)\.\s', lambda m: ('\n' + m.group(1) + '. ') if int(m.group(1)) > 1 else (m.group(1) + '. '), val)
-            return val.strip()
-        def trunc(val, limit=255):
-            val = val or ""
-            return val[:252] + "..." if len(val) > limit else val
-        writer.writerow({
-            "Test Case ID": tc.get("Test Case ID", ""),
-            "Résumé": trunc(tc.get("Summary", "")),
-            "Description": tc.get("Description", ""),
-            "Preconditions": trunc(format_steps(tc.get("Preconditions", ""))),
-            "Test Steps": trunc(format_steps(tc.get("Test Steps", ""))),
-            "Expected Result": trunc(format_steps(tc.get("Expected Result", ""))),
-            "Priorité": tc.get("Priority", "Moyenne"),
-        })
-    return output.getvalue()
+- **Action prise** : Matrice de test notée au backlog.
 
-# --- Main Inputs ---
-user_story = st.text_area(
-    "📋 Votre User Story",
-    height=150,
-    placeholder="En tant que [rôle], je veux [action], afin de [bénéfice]...\n\nVous pouvez aussi coller des critères d'acceptance, des règles métier, ou toute description fonctionnelle."
-)
+### Testeur 8 — Kalidou BA
+- **A testé ?** : Oui
+- **Date** : 17/03/2026
+- **Retour :**
 
-with st.expander("🏢 Contexte applicatif (optionnel — recommandé pour des tests plus précis)"):
-    app_context = st.text_area(
-        "Décrivez votre application",
-        height=120,
-        placeholder="Nom de l'app, type (web/mobile), URL, pages principales, rôles utilisateurs, règles métier, stack technique, contraintes spécifiques...\n\nPlus vous donnez de contexte, plus les cas de test seront précis et exécutables.",
-        label_visibility="collapsed"
-    )
+> C'est vraiment un super APP et il va beaucoup nous aider avec les cas de tests.
+> Est-ce possible de linker soit l'APK ou le lien web et dès qu'on clique sur les fonctionnalités l'application génère les cas de tests ?
 
-# --- Generate Button ---
-col1, col2, col3 = st.columns([1, 1, 1])
-with col2:
-    generate = st.button("🚀 Générer les cas de test", use_container_width=True, type="primary")
+- **Action prise** : Feature ambitieuse (analyse d'app par URL/APK) — notée pour vision long terme.
 
-# --- Generation Logic ---
-if generate:
-    if not api_key:
-        st.error("⚠️ Configuration API manquante. Contactez l'administrateur.")
-    elif not user_story.strip():
-        st.error("⚠️ Collez une User Story pour commencer.")
-    else:
-        try:
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel(
-                model_name="gemini-2.5-flash",
-                system_instruction=SYSTEM_PROMPT
-            )
+### Testeur 9 — Nicolas Trzcinski
+- **A testé ?** : Oui
+- **Date** : 17/03/2026
+- **Retour :**
 
-            # Build the user message with optional context
-            if app_context and app_context.strip():
-                user_message = f"CONTEXTE APPLICATIF :\n{app_context}\n\n---\n\nUSER STORY À ANALYSER :\n{user_story}"
-            else:
-                user_message = f"AUCUN CONTEXTE APPLICATIF FOURNI. Tu DOIS utiliser [À DÉFINIR PAR LE TESTEUR] pour toute donnée spécifique à l'application (URLs, noms de boutons, noms de pages, emails, mots de passe, messages d'erreur, etc.). N'invente RIEN.\n\n---\n\nUSER STORY À ANALYSER :\n{user_story}"
+> Intéressant ton appli ! Je travaille également sur un projet web du même genre, connecté à Jira/Xray.
+> Hâte de voir comme tu avances, qui sait on pourrait collaborer dans le futur sur un même projet.
 
-            with st.spinner("🔄 Analyse de la User Story et génération des tests..."):
-                response = model.generate_content(user_message)
-                result = response.text
+- **Action prise** : Collaboration déclinée pour l'instant. Reste solo.
 
-            # Store result in session_state
-            st.session_state['result'] = result
-            st.session_state['user_story'] = user_story
-            st.session_state['app_context'] = app_context if app_context else ""
+### Testeur 10 — Lyne Voctabah
+- **A testé ?** : Oui
+- **Date** : 17-18/03/2026
+- **Retour :**
 
-            # --- Generate CSV in the same pass ---
-            with st.spinner("🔄 Préparation de l'export CSV Jira..."):
-                try:
-                    csv_model = genai.GenerativeModel(
-                        model_name="gemini-2.5-flash",
-                        system_instruction=CSV_CONVERSION_PROMPT
-                    )
-                    csv_response = csv_model.generate_content(
-                        f"Convertis ces cas de test en JSON :\n\n{result}"
-                    )
-                    raw_json = csv_response.text.strip()
-                    if raw_json.startswith("```"):
-                        raw_json = raw_json.split("\n", 1)[1]
-                    if raw_json.endswith("```"):
-                        raw_json = raw_json.rsplit("```", 1)[0]
-                    raw_json = raw_json.strip()
+> Est-ce que le lien sauvegarde les user stories ?
+> Je trouve que l'outil fait vraiment gagner du temps sur la rédaction. Les cas de test sont bien détaillés et faciles à comprendre. J'aime le fait que ce soit hyper simple.
 
-                    test_cases = json.loads(raw_json)
-                    st.session_state['csv_data'] = json_to_jira_csv(test_cases)
-                    st.session_state['csv_count'] = len(test_cases)
-                except Exception:
-                    st.session_state['csv_data'] = None
-                    st.session_state['csv_count'] = 0
+> Je dirai utiliser l'approche BDD pour les cas de test ?
 
-            # --- Generate Gherkin in the same pass ---
-            with st.spinner("🔄 Génération des scénarios Gherkin / BDD..."):
-                try:
-                    gherkin_model = genai.GenerativeModel(
-                        model_name="gemini-2.5-flash",
-                        system_instruction=GHERKIN_CONVERSION_PROMPT
-                    )
-                    gherkin_response = gherkin_model.generate_content(
-                        f"Convertis ces cas de test en scénarios Gherkin :\n\n{result}"
-                    )
-                    gherkin_text = gherkin_response.text.strip()
-                    # Clean potential markdown fences
-                    if gherkin_text.startswith("```"):
-                        gherkin_text = gherkin_text.split("\n", 1)[1]
-                    if gherkin_text.endswith("```"):
-                        gherkin_text = gherkin_text.rsplit("```", 1)[0]
-                    st.session_state['gherkin_data'] = gherkin_text.strip()
-                except Exception:
-                    st.session_state['gherkin_data'] = None
+- **Action prise** : Historique noté au backlog. Export Gherkin/BDD ajouté (Jour 3). Message envoyé pour retester.
 
-        except Exception as e:
-            st.error(f"❌ Erreur : {str(e)}")
+### Testeur 11 — Elodie Juino
+- **A testé ?** : Non (pas encore)
+- **Date** : 18/03/2026
+- **Retour :**
 
-# --- Display results from session_state (persists across reruns) ---
-if st.session_state.get('result'):
-    result = st.session_state['result']
-    us = st.session_state.get('user_story', '')
-    ctx = st.session_state.get('app_context', '')
+> Merci, on est en client lourd, est ce compatible ?
+> Ça sera avec plaisir après notre grand rech actuel. Ton outil m'aidera sûrement beaucoup.
 
-    st.markdown("---")
-    st.markdown("## 📊 Résultats")
-    st.markdown(result)
+- **Action prise** : Lead chaud. Relancer dans 2 semaines après sa recette.
 
-    # --- Gherkin Preview ---
-    gherkin_data = st.session_state.get('gherkin_data')
-    if gherkin_data:
-        with st.expander("🥒 Scénarios Gherkin / BDD (cliquez pour voir)"):
-            st.code(gherkin_data, language="gherkin")
+### Leads LinkedIn (post carrousel — 18/03/2026)
+- Lewis Dieu Ne Dort BABE YAKA — Senior QA Engineer — commenté "QA" — DM envoyé
+- Ali KAR — Ingénieur Testing Agile ISTQB — commenté "QA" — DM envoyé
+- Lyne VOCTABAH — commenté "QA" — déjà testeuse
+- Kalidou BA — commenté "QA" — déjà testeur
+- Ahlem Ayari — Étudiante ISITCOM — commenté "QA" — DM envoyé
+- Abdoulahi DIABY — Consultant QA SAP — commenté "QA" — DM envoyé
+- Ala Eddine Benna — Testeur logiciel ISTQB — commenté "QA" — DM envoyé
+- Abdelkrim BOUHRAOUA — QA Testeur ISTQB — commenté "QA" — DM envoyé
+- Abdessamad Nacih — Ingénieur QA — commenté "QA" — DM envoyé
+- Elodie Juino — commenté "QA !" — déjà en contact DM
 
-    # --- Export Options ---
-    st.markdown("---")
-    st.markdown("### 📥 Exporter")
+---
 
-    col_exp1, col_exp2, col_exp3, col_exp4 = st.columns(4)
+## Métriques
 
-    with col_exp1:
-        export_header = f"# QA Test Generator — Résultats\n\n## User Story\n{us}"
-        if ctx.strip():
-            export_header += f"\n\n## Contexte applicatif\n{ctx}"
-        markdown_content = f"{export_header}\n\n---\n\n{result}"
-        st.download_button(
-            label="📄 Markdown",
-            data=markdown_content,
-            file_name="test_cases.md",
-            mime="text/markdown",
-            use_container_width=True,
-            key="dl_markdown"
-        )
+| Métrique | Objectif Phase 1 | Actuel |
+|----------|-----------------|--------|
+| Prototype utilisable | ✅ | ✅ |
+| Testeurs confirmés | 10+ | 11 ✅ |
+| Leads LinkedIn (DM envoyés) | - | 7 nouveaux |
+| Testeurs qui ont testé | 5+ | 10 ✅ |
+| Retours exploitables | 3+ | 10 ✅ |
+| Itérations produit | - | 5 (contexte, prompt, CSV, fix boutons, Gherkin) |
+| Formats d'export | - | 4 (Markdown, TXT, CSV Jira, Gherkin) |
+| Post LinkedIn | 1 | 1 ✅ (2407 impressions, 48 réactions, 18 commentaires) |
+| Import Jira validé | - | ✅ |
+| Newsletter configurée | - | ✅ ("Le Testeur Augmenté") |
 
-    with col_exp2:
-        txt_header = f"User Story:\n{us}"
-        if ctx.strip():
-            txt_header += f"\n\nContexte applicatif:\n{ctx}"
-        txt_content = f"{txt_header}\n\n---\n\n{result}"
-        st.download_button(
-            label="📋 TXT",
-            data=txt_content,
-            file_name="test_cases.txt",
-            mime="text/plain",
-            use_container_width=True,
-            key="dl_txt"
-        )
+---
 
-    with col_exp3:
-        csv_data = st.session_state.get('csv_data')
-        csv_count = st.session_state.get('csv_count', 0)
-        if csv_data:
-            st.download_button(
-                label=f"📊 CSV Jira ({csv_count})",
-                data=csv_data,
-                file_name="test_cases_jira.csv",
-                mime="text/csv",
-                use_container_width=True,
-                key="dl_csv"
-            )
-        else:
-            st.warning("CSV indisponible")
+## Décisions prises
+1. **Stack** : Streamlit + Gemini 2.5 Flash (pas Ollama)
+2. **Architecture** : 1 appel LLM principal + 1 appel CSV + 1 appel Gherkin
+3. **Go-to-market** : Option A — PLG, self-service, 19-49€/mois
+4. **Priorité** : Retours terrain AVANT nouvelles features
+5. **Champ contexte applicatif** : ajouté suite retour Luis
+6. **Prompt strict** : ne jamais inventer de données — [À DÉFINIR PAR LE TESTEUR]
+7. **Export CSV Jira/Xray** : ajouté suite retours Aymen, Nicolas, Moez
+8. **Export Gherkin/BDD** : ajouté suite retours Aymen, Lyne
+9. **Collaboration Nicolas** : déclinée pour l'instant, reste solo
+10. **Repo GitHub public** : nécessaire pour Streamlit Cloud gratuit
+11. **Formation** : en mode maintenance, focus sur le produit QA Test Generator
+12. **Newsletter** : "Le Testeur Augmenté" — hebdomadaire — premier numéro à écrire
 
-    with col_exp4:
-        if gherkin_data:
-            st.download_button(
-                label="🥒 Gherkin",
-                data=gherkin_data,
-                file_name="test_cases.feature",
-                mime="text/plain",
-                use_container_width=True,
-                key="dl_gherkin"
-            )
-        else:
-            st.warning("Gherkin indisponible")
+## Backlog (demandé par les testeurs)
+- [x] Corriger le prompt — ne pas inventer de données (Luis v2)
+- [x] Export CSV compatible Jira/Xray (Aymen, Nicolas, Moez)
+- [x] Import Jira testé + fichier de config sauvegardé
+- [x] Export Gherkin / BDD (Aymen, Lyne)
+- [ ] Historique / sauvegarde des générations (Lyne)
+- [ ] Génération de tests d'acceptance / TA (Moez)
+- [ ] Matrice de test (Tasnim)
+- [ ] Analyse d'app par URL/APK (Kalidou) — vision long terme
+- [ ] Gestion des restrictions géographiques API (Diawando)
 
-# --- Footer ---
-st.markdown("""
-<div class="footer">
-    QA Test Generator — MVP Phase 1 · Propulsé par Google Gemini · Fait avec ❤️ pour la communauté QA
-</div>
-""", unsafe_allow_html=True)
+---
+
+## Phase 2 — Jours 30 à 60 : Validation marché
+*(à compléter quand Phase 1 terminée)*
+
+## Phase 3 — Jours 60 à 90 : Produit
+*(à compléter quand Phase 2 terminée)*
