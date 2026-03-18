@@ -134,6 +134,38 @@ RÈGLES STRICTES :
 - IMPORTANT : utilise le caractère newline \\n entre chaque étape/résultat, PAS un espace ou un point-virgule
 """
 
+# --- Gherkin Conversion Prompt ---
+GHERKIN_CONVERSION_PROMPT = """Tu es un expert QA qui convertit des cas de test en scénarios Gherkin (BDD).
+
+À partir des cas de test fournis, génère des scénarios au format Gherkin strict.
+
+FORMAT OBLIGATOIRE :
+
+Feature: [Titre dérivé de la User Story]
+
+  Scenario: [Titre du cas de test]
+    Given [précondition 1]
+    And [précondition 2]
+    When [action utilisateur 1]
+    And [action utilisateur 2]
+    Then [résultat attendu 1]
+    And [résultat attendu 2]
+
+RÈGLES STRICTES :
+- Utilise les mots-clés Gherkin en ANGLAIS : Feature, Scenario, Given, When, Then, And, But
+- Le contenu des étapes est en FRANÇAIS
+- Chaque cas de test fonctionnel ET chaque cas limite devient un Scenario
+- NE PAS inclure les risques — uniquement les cas de test
+- Given = préconditions et état initial
+- When = actions de l'utilisateur
+- Then = résultats attendus et vérifications
+- Utilise "And" pour les étapes supplémentaires dans chaque section
+- Si des données sont marquées [À DÉFINIR PAR LE TESTEUR], garde-les telles quelles dans le Gherkin
+- Pour les scénarios avec plusieurs jeux de données, utilise Scenario Outline avec Examples
+- Pas de formatage Markdown — du texte brut Gherkin uniquement
+- Sépare chaque Scenario par une ligne vide
+"""
+
 # --- Header ---
 st.markdown("""
 <div class="main-header">
@@ -186,8 +218,6 @@ def json_to_jira_csv(test_cases_json):
         def format_steps(val):
             """Force un retour à la ligne avant chaque numéro d'étape."""
             val = val or ""
-            # Remplace "2. ", "3. ", etc. par un retour à la ligne + le numéro
-            # On ne touche pas au "1. " initial
             val = re.sub(r'(?<!\n)\s*(\d+)\.\s', lambda m: ('\n' + m.group(1) + '. ') if int(m.group(1)) > 1 else (m.group(1) + '. '), val)
             return val.strip()
         def trunc(val, limit=255):
@@ -277,6 +307,26 @@ if generate:
                     st.session_state['csv_data'] = None
                     st.session_state['csv_count'] = 0
 
+            # --- Generate Gherkin in the same pass ---
+            with st.spinner("🔄 Génération des scénarios Gherkin / BDD..."):
+                try:
+                    gherkin_model = genai.GenerativeModel(
+                        model_name="gemini-2.5-flash",
+                        system_instruction=GHERKIN_CONVERSION_PROMPT
+                    )
+                    gherkin_response = gherkin_model.generate_content(
+                        f"Convertis ces cas de test en scénarios Gherkin :\n\n{result}"
+                    )
+                    gherkin_text = gherkin_response.text.strip()
+                    # Clean potential markdown fences
+                    if gherkin_text.startswith("```"):
+                        gherkin_text = gherkin_text.split("\n", 1)[1]
+                    if gherkin_text.endswith("```"):
+                        gherkin_text = gherkin_text.rsplit("```", 1)[0]
+                    st.session_state['gherkin_data'] = gherkin_text.strip()
+                except Exception:
+                    st.session_state['gherkin_data'] = None
+
         except Exception as e:
             st.error(f"❌ Erreur : {str(e)}")
 
@@ -290,11 +340,17 @@ if st.session_state.get('result'):
     st.markdown("## 📊 Résultats")
     st.markdown(result)
 
+    # --- Gherkin Preview ---
+    gherkin_data = st.session_state.get('gherkin_data')
+    if gherkin_data:
+        with st.expander("🥒 Scénarios Gherkin / BDD (cliquez pour voir)"):
+            st.code(gherkin_data, language="gherkin")
+
     # --- Export Options ---
     st.markdown("---")
     st.markdown("### 📥 Exporter")
 
-    col_exp1, col_exp2, col_exp3 = st.columns(3)
+    col_exp1, col_exp2, col_exp3, col_exp4 = st.columns(4)
 
     with col_exp1:
         export_header = f"# QA Test Generator — Résultats\n\n## User Story\n{us}"
@@ -329,7 +385,7 @@ if st.session_state.get('result'):
         csv_count = st.session_state.get('csv_count', 0)
         if csv_data:
             st.download_button(
-                label=f"📊 CSV Jira ({csv_count} cas)",
+                label=f"📊 CSV Jira ({csv_count})",
                 data=csv_data,
                 file_name="test_cases_jira.csv",
                 mime="text/csv",
@@ -337,7 +393,20 @@ if st.session_state.get('result'):
                 key="dl_csv"
             )
         else:
-            st.warning("CSV indisponible — réessayez")
+            st.warning("CSV indisponible")
+
+    with col_exp4:
+        if gherkin_data:
+            st.download_button(
+                label="🥒 Gherkin",
+                data=gherkin_data,
+                file_name="test_cases.feature",
+                mime="text/plain",
+                use_container_width=True,
+                key="dl_gherkin"
+            )
+        else:
+            st.warning("Gherkin indisponible")
 
 # --- Footer ---
 st.markdown("""
