@@ -10,11 +10,11 @@ import re
 # --- Page Config ---
 st.set_page_config(
     page_title="QA Test Generator",
-    page_icon="🧪",
+    page_icon="✓",
     layout="wide"
 )
 
-# --- Custom CSS - Emerald Theme ---
+# --- Custom CSS - Emerald Theme (No Emojis) ---
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
@@ -48,20 +48,20 @@ st.markdown("""
     display: inline-block;
     background: #ecfdf5;
     color: #059669;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 700;
     padding: 0.3rem 0.9rem;
     border-radius: 999px;
     border: 1px solid #a7f3d0;
     margin-bottom: 0.8rem;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
     text-transform: uppercase;
 }
 .welcome-stats {
     display: flex;
     justify-content: center;
-    gap: 2rem;
-    margin-top: 1rem;
+    gap: 2.5rem;
+    margin-top: 1.2rem;
     margin-bottom: 0.5rem;
 }
 .stat-item {
@@ -74,9 +74,19 @@ st.markdown("""
     color: #059669;
 }
 .stat-label {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     color: #9ca3af;
-    margin-top: 0.1rem;
+    margin-top: 0.15rem;
+}
+
+/* === SECTION TITLES === */
+.section-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #374151;
+    letter-spacing: 0.3px;
+    margin-bottom: 0.5rem;
 }
 
 /* === SIDEBAR === */
@@ -86,7 +96,8 @@ section[data-testid="stSidebar"] {
 section[data-testid="stSidebar"] .stMarkdown h3 {
     color: #059669;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+    letter-spacing: 0.3px;
 }
 
 /* === BUTTONS === */
@@ -138,6 +149,10 @@ section[data-testid="stSidebar"] .stMarkdown h3 {
     padding: 2rem 0 1rem 0;
     border-top: 1px solid #e5e7eb;
     margin-top: 3rem;
+}
+.footer a {
+    color: #059669;
+    text-decoration: none;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -272,8 +287,8 @@ RÈGLES STRICTES :
 # --- Header ---
 st.markdown("""
 <div class="main-header">
-    <div class="badge">✨ Propulsé par l'IA</div>
-    <h1>🧪 QA Test Generator</h1>
+    <div class="badge">Propuls&eacute; par l'IA</div>
+    <h1>QA Test Generator</h1>
     <p class="tagline">Transformez vos User Stories en cas de test complets en 30 secondes.</p>
     <div class="welcome-stats">
         <div class="stat-item">
@@ -282,7 +297,7 @@ st.markdown("""
         </div>
         <div class="stat-item">
             <div class="stat-number">30s</div>
-            <div class="stat-label">Temps de génération</div>
+            <div class="stat-label">Temps de g&eacute;n&eacute;ration</div>
         </div>
         <div class="stat-item">
             <div class="stat-number">0</div>
@@ -296,18 +311,18 @@ st.markdown("""
 api_key = st.secrets.get("GEMINI_API_KEY", "")
 
 with st.sidebar:
-    st.markdown("### 🧪 QA Test Generator")
+    st.markdown("### QA Test Generator")
     st.markdown("---")
-    st.markdown("### 📖 Comment ça marche")
+    st.markdown("### Guide rapide")
     st.markdown("""
     1. Collez votre User Story
     2. *(Optionnel)* Ajoutez le contexte de votre app
-    3. Cliquez sur **Générer**
+    3. Cliquez sur **G\u00e9n\u00e9rer**
     4. Exportez en Markdown, TXT, CSV Jira ou Gherkin
     """)
 
     st.markdown("---")
-    st.markdown("### 💡 Exemple de User Story")
+    st.markdown("### Exemple de User Story")
     st.code("""En tant qu'utilisateur,
 je veux pouvoir réinitialiser
 mon mot de passe via email,
@@ -315,7 +330,7 @@ afin de récupérer l'accès
 à mon compte.""", language=None)
 
     st.markdown("---")
-    st.markdown("### 💡 Exemple de contexte")
+    st.markdown("### Exemple de contexte")
     st.code("""App : MonBanquier.fr
 Type : app bancaire web
 URL : https://app.monbanquier.fr
@@ -327,8 +342,8 @@ min 8 caractères, 1 majuscule,
 1 chiffre, 1 caractère spécial""", language=None)
 
     st.markdown("---")
-    st.markdown("### 📊 Exports disponibles")
-    st.markdown("📄 Markdown · 📋 TXT · 📊 CSV Jira · 🥒 Gherkin")
+    st.markdown("### Exports disponibles")
+    st.markdown("Markdown · TXT · CSV Jira · Gherkin")
 
 # --- Helper: Convert JSON to CSV ---
 def json_to_jira_csv(test_cases_json):
@@ -357,7 +372,7 @@ def json_to_jira_csv(test_cases_json):
     return output.getvalue()
 
 # --- Main Inputs ---
-st.markdown("#### 📋 Votre User Story")
+st.markdown('<p class="section-title">Votre User Story</p>', unsafe_allow_html=True)
 user_story = st.text_area(
     "User Story",
     height=150,
@@ -365,7 +380,7 @@ user_story = st.text_area(
     label_visibility="collapsed"
 )
 
-with st.expander("🏢 Contexte applicatif (optionnel — recommandé pour des tests plus précis)"):
+with st.expander("Contexte applicatif (optionnel — recommandé pour des tests plus précis)"):
     app_context = st.text_area(
         "Décrivez votre application",
         height=120,
@@ -376,14 +391,14 @@ with st.expander("🏢 Contexte applicatif (optionnel — recommandé pour des t
 # --- Generate Button ---
 col1, col2, col3 = st.columns([1, 1, 1])
 with col2:
-    generate = st.button("🚀 Générer les cas de test", use_container_width=True, type="primary")
+    generate = st.button("Générer les cas de test", use_container_width=True, type="primary")
 
 # --- Generation Logic ---
 if generate:
     if not api_key:
-        st.error("⚠️ Configuration API manquante. Contactez l'administrateur.")
+        st.error("Configuration API manquante. Contactez l'administrateur.")
     elif not user_story.strip():
-        st.error("⚠️ Collez une User Story pour commencer.")
+        st.error("Collez une User Story pour commencer.")
     else:
         try:
             genai.configure(api_key=api_key)
@@ -397,7 +412,7 @@ if generate:
             else:
                 user_message = f"AUCUN CONTEXTE APPLICATIF FOURNI. Tu DOIS utiliser [À DÉFINIR PAR LE TESTEUR] pour toute donnée spécifique à l'application (URLs, noms de boutons, noms de pages, emails, mots de passe, messages d'erreur, etc.). N'invente RIEN.\n\n---\n\nUSER STORY À ANALYSER :\n{user_story}"
 
-            with st.spinner("🔄 Analyse de la User Story et génération des tests..."):
+            with st.spinner("Analyse de la User Story et génération des tests..."):
                 response = model.generate_content(user_message)
                 result = response.text
 
@@ -405,7 +420,7 @@ if generate:
             st.session_state['user_story'] = user_story
             st.session_state['app_context'] = app_context if app_context else ""
 
-            with st.spinner("🔄 Préparation de l'export CSV Jira..."):
+            with st.spinner("Préparation de l'export CSV Jira..."):
                 try:
                     csv_model = genai.GenerativeModel(
                         model_name="gemini-2.5-flash",
@@ -427,7 +442,7 @@ if generate:
                     st.session_state['csv_data'] = None
                     st.session_state['csv_count'] = 0
 
-            with st.spinner("🔄 Génération des scénarios Gherkin / BDD..."):
+            with st.spinner("Génération des scénarios Gherkin / BDD..."):
                 try:
                     gherkin_model = genai.GenerativeModel(
                         model_name="gemini-2.5-flash",
@@ -446,7 +461,7 @@ if generate:
                     st.session_state['gherkin_data'] = None
 
         except Exception as e:
-            st.error(f"❌ Erreur : {str(e)}")
+            st.error(f"Erreur : {str(e)}")
 
 # --- Display results from session_state ---
 if st.session_state.get('result'):
@@ -457,7 +472,7 @@ if st.session_state.get('result'):
     st.markdown("---")
 
     # --- Results in tabs ---
-    tab_results, tab_gherkin = st.tabs(["📊 Cas de test", "🥒 Gherkin / BDD"])
+    tab_results, tab_gherkin = st.tabs(["Cas de test", "Gherkin / BDD"])
 
     with tab_results:
         st.markdown(result)
@@ -471,17 +486,17 @@ if st.session_state.get('result'):
 
     # --- Export Options ---
     st.markdown("---")
-    st.markdown("### 📥 Exporter les résultats")
+    st.markdown('<p class="section-title">Exporter les résultats</p>', unsafe_allow_html=True)
 
     col_exp1, col_exp2, col_exp3, col_exp4 = st.columns(4)
 
     with col_exp1:
-        export_header = f"# QA Test Generator — Résultats\n\n## User Story\n{us}"
+        export_header = f"# QA Test Generator\n\n## User Story\n{us}"
         if ctx.strip():
             export_header += f"\n\n## Contexte applicatif\n{ctx}"
         markdown_content = f"{export_header}\n\n---\n\n{result}"
         st.download_button(
-            label="📄 Markdown",
+            label="Markdown",
             data=markdown_content,
             file_name="test_cases.md",
             mime="text/markdown",
@@ -495,7 +510,7 @@ if st.session_state.get('result'):
             txt_header += f"\n\nContexte applicatif:\n{ctx}"
         txt_content = f"{txt_header}\n\n---\n\n{result}"
         st.download_button(
-            label="📋 TXT",
+            label="TXT",
             data=txt_content,
             file_name="test_cases.txt",
             mime="text/plain",
@@ -508,7 +523,7 @@ if st.session_state.get('result'):
         csv_count = st.session_state.get('csv_count', 0)
         if csv_data:
             st.download_button(
-                label=f"📊 CSV Jira ({csv_count})",
+                label=f"CSV Jira ({csv_count})",
                 data=csv_data,
                 file_name="test_cases_jira.csv",
                 mime="text/csv",
@@ -522,7 +537,7 @@ if st.session_state.get('result'):
         gherkin_data = st.session_state.get('gherkin_data')
         if gherkin_data:
             st.download_button(
-                label="🥒 Gherkin",
+                label="Gherkin",
                 data=gherkin_data,
                 file_name="test_cases.feature",
                 mime="text/plain",
@@ -535,7 +550,7 @@ if st.session_state.get('result'):
 # --- Footer ---
 st.markdown("""
 <div class="footer">
-    QA Test Generator · Propulsé par l'IA · Fait avec ❤️ pour la communauté QA<br>
-    <span style="font-size: 0.7rem; color: #d1d5db;">Un outil par Amadou FOFANA — Le Testeur Augmenté</span>
+    QA Test Generator · Propuls&eacute; par l'IA · Fait pour la communaut&eacute; QA<br>
+    <span style="font-size: 0.7rem; color: #d1d5db;">Un outil par Amadou FOFANA — Le Testeur Augment&eacute;</span>
 </div>
 """, unsafe_allow_html=True)
