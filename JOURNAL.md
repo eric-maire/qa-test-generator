@@ -88,6 +88,42 @@
 
 - **Actions prises** : Ajout champ contexte (v2), puis correction prompt pour ne plus inventer de données (v3)
 
+- **A testé ?** : Oui (V4-v5)
+- **Date** : 19/03/2026
+- **Retour v4-v5 :**
+
+
+- **Retour v4-v5  :**
+
+Luis Cavalheiro     11:06
+> C'est pas mieux :(
+> Des steps comme celui-ci sont une perte de temps:
+> Laisser le champ [NOM DU CHAMP EMAIL – À DÉFINIR PAR LE TESTEUR] vide.
+
+> J'imaginais plus un dialogue entre l'IA et le testeur pour obtenir des informations manquante autours des données. Ajouter "À DÉFINIR PAR LE TESTEUR" est tres improductif > > sont l'IA génère des centaines de tests...
+> Amadou FOFANA a envoyé les messages suivants à 11:21
+> Amadou FOFANA     11:21
+> Hello Luis,
+> Merci pour ton précieux feed-back. 
+> Voir le profil de Amadou Amadou FOFANA
+> Amadou FOFANA     11:29
+> Tu as tout à fait raison.
+> En fait, ton retour met le doigt sur la vraie évolution utile du produit.
+
+> L’objectif ne devrait pas être de sortir des champs “à définir par le testeur”, mais plutôt de détecter automatiquement les informations manquantes et de proposer un > échange interactif dans l’app pour les compléter avant la génération finale. 😉👍🏾✨✨ Bien vu. 
+
+> Autrement dit, au lieu de laisser des blancs dans les tests, l’IA devrait jouer son rôle de copilote et poser les bonnes questions au testeur au bon moment.
+
+> Merci Luis, c’est un très bon retour produit.
+
+> Je vais le prendre en compte
+> Luis Cavalheiro a envoyé les messages suivants à 11:31
+> Voir le profil de Luis Luis Cavalheiro
+> Luis Cavalheiro     11:31
+> tout à fait.
+> L'idéé est d'accélérer l génération des tests mais des tests  pret à etre executé
+
+
 ### Testeur 2 — Moez Ben Khaled
 - **A testé ?** : Oui (v1)
 - **Date** : 16/03/2026
