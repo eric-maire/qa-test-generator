@@ -6,6 +6,17 @@ import csv
 import io
 import re
 
+# --- SVG Icons (Emerald, 20px, inline) ---
+ICON_CHECK = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>'
+ICON_ZAP = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>'
+ICON_FILE = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>'
+ICON_CLIPBOARD = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>'
+ICON_LAYERS = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>'
+ICON_DOWNLOAD = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'
+ICON_CODE = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>'
+ICON_BOOK = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>'
+ICON_SETTINGS = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>'
+ICON_SHIELD = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'
 
 # --- Page Config ---
 st.set_page_config(
@@ -14,102 +25,54 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- Custom CSS - Emerald Theme (No Emojis) ---
+# --- Custom CSS - Emerald Theme ---
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
 
-/* === GLOBAL === */
-.stApp {
-    font-family: 'DM Sans', sans-serif;
-}
+.stApp { font-family: 'DM Sans', sans-serif; }
 
 /* === HEADER === */
-.main-header {
-    text-align: center;
-    padding: 2.5rem 0 1.5rem 0;
-}
+.main-header { text-align: center; padding: 2.5rem 0 1.5rem 0; }
 .main-header h1 {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 2.4rem;
-    font-weight: 700;
+    font-size: 2.4rem; font-weight: 700;
     background: linear-gradient(135deg, #059669, #10B981, #34D399);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     margin-bottom: 0.5rem;
 }
-.main-header .tagline {
-    font-size: 1.15rem;
-    color: #6b7280;
-    margin-top: 0;
-    margin-bottom: 1rem;
-}
+.main-header .tagline { font-size: 1.15rem; color: #6b7280; margin-top: 0; margin-bottom: 1rem; }
 .badge {
-    display: inline-block;
-    background: #ecfdf5;
-    color: #059669;
-    font-size: 0.7rem;
-    font-weight: 700;
-    padding: 0.3rem 0.9rem;
-    border-radius: 999px;
-    border: 1px solid #a7f3d0;
-    margin-bottom: 0.8rem;
-    letter-spacing: 1px;
-    text-transform: uppercase;
+    display: inline-block; background: #ecfdf5; color: #059669;
+    font-size: 0.7rem; font-weight: 700; padding: 0.3rem 0.9rem;
+    border-radius: 999px; border: 1px solid #a7f3d0; margin-bottom: 0.8rem;
+    letter-spacing: 1px; text-transform: uppercase;
 }
-.welcome-stats {
-    display: flex;
-    justify-content: center;
-    gap: 2.5rem;
-    margin-top: 1.2rem;
-    margin-bottom: 0.5rem;
-}
-.stat-item {
-    text-align: center;
-}
-.stat-number {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #059669;
-}
-.stat-label {
-    font-size: 0.78rem;
-    color: #9ca3af;
-    margin-top: 0.15rem;
-}
+.badge svg { vertical-align: -3px; margin-right: 4px; }
+.welcome-stats { display: flex; justify-content: center; gap: 2.5rem; margin-top: 1.2rem; margin-bottom: 0.5rem; }
+.stat-item { text-align: center; }
+.stat-number { font-family: 'JetBrains Mono', monospace; font-size: 1.5rem; font-weight: 700; color: #059669; }
+.stat-label { font-size: 0.78rem; color: #9ca3af; margin-top: 0.15rem; }
 
 /* === SECTION TITLES === */
 .section-title {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #374151;
-    letter-spacing: 0.3px;
-    margin-bottom: 0.5rem;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.95rem;
+    font-weight: 600; color: #374151; letter-spacing: 0.3px; margin-bottom: 0.5rem;
 }
+.section-title svg { vertical-align: -4px; margin-right: 6px; }
 
 /* === SIDEBAR === */
-section[data-testid="stSidebar"] {
-    background-color: #f0fdf4;
-}
+section[data-testid="stSidebar"] { background-color: #f0fdf4; }
 section[data-testid="stSidebar"] .stMarkdown h3 {
-    color: #059669;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.9rem;
-    letter-spacing: 0.3px;
+    color: #059669; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; letter-spacing: 0.3px;
 }
 
 /* === BUTTONS === */
 .stButton > button[kind="primary"] {
     background: linear-gradient(135deg, #059669, #10B981) !important;
-    color: white !important;
-    border: none !important;
-    font-weight: 600 !important;
-    padding: 0.6rem 1.5rem !important;
-    border-radius: 8px !important;
-    font-size: 1rem !important;
-    transition: all 0.2s ease !important;
+    color: white !important; border: none !important; font-weight: 600 !important;
+    padding: 0.6rem 1.5rem !important; border-radius: 8px !important;
+    font-size: 1rem !important; transition: all 0.2s ease !important;
 }
 .stButton > button[kind="primary"]:hover {
     background: linear-gradient(135deg, #047857, #059669) !important;
@@ -119,21 +82,17 @@ section[data-testid="stSidebar"] .stMarkdown h3 {
 
 /* === DOWNLOAD BUTTONS === */
 .stDownloadButton > button {
-    border: 1px solid #d1fae5 !important;
-    color: #059669 !important;
-    font-weight: 600 !important;
-    border-radius: 8px !important;
+    border: 1px solid #d1fae5 !important; color: #059669 !important;
+    font-weight: 600 !important; border-radius: 8px !important;
     transition: all 0.2s ease !important;
 }
 .stDownloadButton > button:hover {
-    background-color: #ecfdf5 !important;
-    border-color: #059669 !important;
+    background-color: #ecfdf5 !important; border-color: #059669 !important;
 }
 
 /* === TEXT AREA === */
 .stTextArea textarea {
-    border-radius: 8px !important;
-    border: 1px solid #d1d5db !important;
+    border-radius: 8px !important; border: 1px solid #d1d5db !important;
     font-family: 'DM Sans', sans-serif !important;
 }
 .stTextArea textarea:focus {
@@ -143,17 +102,10 @@ section[data-testid="stSidebar"] .stMarkdown h3 {
 
 /* === FOOTER === */
 .footer {
-    text-align: center;
-    color: #9ca3af;
-    font-size: 0.8rem;
-    padding: 2rem 0 1rem 0;
-    border-top: 1px solid #e5e7eb;
-    margin-top: 3rem;
+    text-align: center; color: #9ca3af; font-size: 0.8rem;
+    padding: 2rem 0 1rem 0; border-top: 1px solid #e5e7eb; margin-top: 3rem;
 }
-.footer a {
-    color: #059669;
-    text-decoration: none;
-}
+.footer svg { vertical-align: -3px; margin: 0 3px; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -174,18 +126,6 @@ Si AUCUN contexte applicatif n'est fourni :
 - N'écris JAMAIS de section "Contexte Applicatif Inventé" ou "Contexte supposé" ou similaire
 - Pour CHAQUE donnée non fournie, écris exactement : [À DÉFINIR PAR LE TESTEUR]
 - Cela inclut : URLs, noms de boutons, noms de pages, messages d'erreur, emails, mots de passe, identifiants, durées de session, règles de validation
-
-Exemples corrects SANS contexte :
-- "Naviguer vers [URL DE LA PAGE DE CONNEXION — À DÉFINIR PAR LE TESTEUR]"
-- "Cliquer sur le bouton [NOM DU BOUTON DE CONNEXION — À DÉFINIR PAR LE TESTEUR]"
-- "Email de test : [À DÉFINIR PAR LE TESTEUR]"
-- "Vérifier que le message d'erreur [MESSAGE EXACT — À DÉFINIR PAR LE TESTEUR] s'affiche"
-
-Exemples INTERDITS sans contexte :
-- "Naviguer vers https://www.monapp.com/login" ❌
-- "Cliquer sur le bouton 'Se connecter'" ❌
-- "Email de test : jean.dupont@email.com" ❌
-- "L'application PixelConnect affiche..." ❌
 
 === FIN RÈGLE ABSOLUE ===
 
@@ -243,13 +183,9 @@ Chaque objet du tableau doit avoir exactement ces champs :
 
 RÈGLES STRICTES :
 - Retourne UNIQUEMENT le tableau JSON, rien d'autre
-- Pas de texte avant ou après le JSON
-- Pas de backticks ```json
-- Pas de commentaires
+- Pas de backticks, pas de commentaires
 - Le JSON doit être valide et parsable directement
-- Garde les priorités en français : "Haute", "Moyenne", "Basse"
-- Supprime tout formatage Markdown (**, ##, *, etc.) dans les valeurs
-- IMPORTANT : utilise le caractère newline \\n entre chaque étape/résultat, PAS un espace ou un point-virgule
+- Supprime tout formatage Markdown dans les valeurs
 """
 
 # --- Gherkin Conversion Prompt ---
@@ -270,24 +206,17 @@ Feature: [Titre dérivé de la User Story]
     And [résultat attendu 2]
 
 RÈGLES STRICTES :
-- Utilise les mots-clés Gherkin en ANGLAIS : Feature, Scenario, Given, When, Then, And, But
-- Le contenu des étapes est en FRANÇAIS
+- Mots-clés Gherkin en ANGLAIS, contenu en FRANÇAIS
 - Chaque cas de test fonctionnel ET chaque cas limite devient un Scenario
-- NE PAS inclure les risques — uniquement les cas de test
-- Given = préconditions et état initial
-- When = actions de l'utilisateur
-- Then = résultats attendus et vérifications
-- Utilise "And" pour les étapes supplémentaires dans chaque section
-- Si des données sont marquées [À DÉFINIR PAR LE TESTEUR], garde-les telles quelles dans le Gherkin
+- NE PAS inclure les risques
 - Pour les scénarios avec plusieurs jeux de données, utilise Scenario Outline avec Examples
 - Pas de formatage Markdown — du texte brut Gherkin uniquement
-- Sépare chaque Scenario par une ligne vide
 """
 
 # --- Header ---
-st.markdown("""
+st.markdown(f"""
 <div class="main-header">
-    <div class="badge">Propuls&eacute; par l'IA</div>
+    <div class="badge">{ICON_ZAP} Propuls&eacute; par l'IA</div>
     <h1>QA Test Generator</h1>
     <p class="tagline">Transformez vos User Stories en cas de test complets en 30 secondes.</p>
     <div class="welcome-stats">
@@ -317,7 +246,7 @@ with st.sidebar:
     st.markdown("""
     1. Collez votre User Story
     2. *(Optionnel)* Ajoutez le contexte de votre app
-    3. Cliquez sur **G\u00e9n\u00e9rer**
+    3. Cliquez sur **Générer**
     4. Exportez en Markdown, TXT, CSV Jira ou Gherkin
     """)
 
@@ -347,7 +276,6 @@ min 8 caractères, 1 majuscule,
 
 # --- Helper: Convert JSON to CSV ---
 def json_to_jira_csv(test_cases_json):
-    """Convert parsed JSON test cases to CSV string for Jira import."""
     output = io.StringIO()
     fieldnames = ["Test Case ID", "Résumé", "Description", "Preconditions", "Test Steps", "Expected Result", "Priorité"]
     writer = csv.DictWriter(output, fieldnames=fieldnames, quoting=csv.QUOTE_ALL)
@@ -372,7 +300,7 @@ def json_to_jira_csv(test_cases_json):
     return output.getvalue()
 
 # --- Main Inputs ---
-st.markdown('<p class="section-title">Votre User Story</p>', unsafe_allow_html=True)
+st.markdown(f'<p class="section-title">{ICON_CLIPBOARD} Votre User Story</p>', unsafe_allow_html=True)
 user_story = st.text_area(
     "User Story",
     height=150,
@@ -402,17 +330,14 @@ if generate:
     else:
         try:
             genai.configure(api_key=api_key)
-            model = genai.GenerativeModel(
-                model_name="gemini-2.5-flash",
-                system_instruction=SYSTEM_PROMPT
-            )
+            model = genai.GenerativeModel(model_name="gemini-2.5-flash", system_instruction=SYSTEM_PROMPT)
 
             if app_context and app_context.strip():
                 user_message = f"CONTEXTE APPLICATIF :\n{app_context}\n\n---\n\nUSER STORY À ANALYSER :\n{user_story}"
             else:
-                user_message = f"AUCUN CONTEXTE APPLICATIF FOURNI. Tu DOIS utiliser [À DÉFINIR PAR LE TESTEUR] pour toute donnée spécifique à l'application (URLs, noms de boutons, noms de pages, emails, mots de passe, messages d'erreur, etc.). N'invente RIEN.\n\n---\n\nUSER STORY À ANALYSER :\n{user_story}"
+                user_message = f"AUCUN CONTEXTE APPLICATIF FOURNI. Tu DOIS utiliser [À DÉFINIR PAR LE TESTEUR] pour toute donnée spécifique à l'application. N'invente RIEN.\n\n---\n\nUSER STORY À ANALYSER :\n{user_story}"
 
-            with st.spinner("Analyse de la User Story et génération des tests..."):
+            with st.spinner("Analyse et génération des tests..."):
                 response = model.generate_content(user_message)
                 result = response.text
 
@@ -422,18 +347,11 @@ if generate:
 
             with st.spinner("Préparation de l'export CSV Jira..."):
                 try:
-                    csv_model = genai.GenerativeModel(
-                        model_name="gemini-2.5-flash",
-                        system_instruction=CSV_CONVERSION_PROMPT
-                    )
-                    csv_response = csv_model.generate_content(
-                        f"Convertis ces cas de test en JSON :\n\n{result}"
-                    )
+                    csv_model = genai.GenerativeModel(model_name="gemini-2.5-flash", system_instruction=CSV_CONVERSION_PROMPT)
+                    csv_response = csv_model.generate_content(f"Convertis ces cas de test en JSON :\n\n{result}")
                     raw_json = csv_response.text.strip()
-                    if raw_json.startswith("```"):
-                        raw_json = raw_json.split("\n", 1)[1]
-                    if raw_json.endswith("```"):
-                        raw_json = raw_json.rsplit("```", 1)[0]
+                    if raw_json.startswith("```"): raw_json = raw_json.split("\n", 1)[1]
+                    if raw_json.endswith("```"): raw_json = raw_json.rsplit("```", 1)[0]
                     raw_json = raw_json.strip()
                     test_cases = json.loads(raw_json)
                     st.session_state['csv_data'] = json_to_jira_csv(test_cases)
@@ -442,20 +360,13 @@ if generate:
                     st.session_state['csv_data'] = None
                     st.session_state['csv_count'] = 0
 
-            with st.spinner("Génération des scénarios Gherkin / BDD..."):
+            with st.spinner("Génération des scénarios Gherkin..."):
                 try:
-                    gherkin_model = genai.GenerativeModel(
-                        model_name="gemini-2.5-flash",
-                        system_instruction=GHERKIN_CONVERSION_PROMPT
-                    )
-                    gherkin_response = gherkin_model.generate_content(
-                        f"Convertis ces cas de test en scénarios Gherkin :\n\n{result}"
-                    )
+                    gherkin_model = genai.GenerativeModel(model_name="gemini-2.5-flash", system_instruction=GHERKIN_CONVERSION_PROMPT)
+                    gherkin_response = gherkin_model.generate_content(f"Convertis ces cas de test en scénarios Gherkin :\n\n{result}")
                     gherkin_text = gherkin_response.text.strip()
-                    if gherkin_text.startswith("```"):
-                        gherkin_text = gherkin_text.split("\n", 1)[1]
-                    if gherkin_text.endswith("```"):
-                        gherkin_text = gherkin_text.rsplit("```", 1)[0]
+                    if gherkin_text.startswith("```"): gherkin_text = gherkin_text.split("\n", 1)[1]
+                    if gherkin_text.endswith("```"): gherkin_text = gherkin_text.rsplit("```", 1)[0]
                     st.session_state['gherkin_data'] = gherkin_text.strip()
                 except Exception:
                     st.session_state['gherkin_data'] = None
@@ -471,7 +382,6 @@ if st.session_state.get('result'):
 
     st.markdown("---")
 
-    # --- Results in tabs ---
     tab_results, tab_gherkin = st.tabs(["Cas de test", "Gherkin / BDD"])
 
     with tab_results:
@@ -486,71 +396,41 @@ if st.session_state.get('result'):
 
     # --- Export Options ---
     st.markdown("---")
-    st.markdown('<p class="section-title">Exporter les résultats</p>', unsafe_allow_html=True)
+    st.markdown(f'<p class="section-title">{ICON_DOWNLOAD} Exporter les résultats</p>', unsafe_allow_html=True)
 
     col_exp1, col_exp2, col_exp3, col_exp4 = st.columns(4)
 
     with col_exp1:
         export_header = f"# QA Test Generator\n\n## User Story\n{us}"
-        if ctx.strip():
-            export_header += f"\n\n## Contexte applicatif\n{ctx}"
+        if ctx.strip(): export_header += f"\n\n## Contexte applicatif\n{ctx}"
         markdown_content = f"{export_header}\n\n---\n\n{result}"
-        st.download_button(
-            label="Markdown",
-            data=markdown_content,
-            file_name="test_cases.md",
-            mime="text/markdown",
-            use_container_width=True,
-            key="dl_markdown"
-        )
+        st.download_button(label="Markdown", data=markdown_content, file_name="test_cases.md", mime="text/markdown", use_container_width=True, key="dl_markdown")
 
     with col_exp2:
         txt_header = f"User Story:\n{us}"
-        if ctx.strip():
-            txt_header += f"\n\nContexte applicatif:\n{ctx}"
+        if ctx.strip(): txt_header += f"\n\nContexte applicatif:\n{ctx}"
         txt_content = f"{txt_header}\n\n---\n\n{result}"
-        st.download_button(
-            label="TXT",
-            data=txt_content,
-            file_name="test_cases.txt",
-            mime="text/plain",
-            use_container_width=True,
-            key="dl_txt"
-        )
+        st.download_button(label="TXT", data=txt_content, file_name="test_cases.txt", mime="text/plain", use_container_width=True, key="dl_txt")
 
     with col_exp3:
         csv_data = st.session_state.get('csv_data')
         csv_count = st.session_state.get('csv_count', 0)
         if csv_data:
-            st.download_button(
-                label=f"CSV Jira ({csv_count})",
-                data=csv_data,
-                file_name="test_cases_jira.csv",
-                mime="text/csv",
-                use_container_width=True,
-                key="dl_csv"
-            )
+            st.download_button(label=f"CSV Jira ({csv_count})", data=csv_data, file_name="test_cases_jira.csv", mime="text/csv", use_container_width=True, key="dl_csv")
         else:
             st.warning("CSV indisponible")
 
     with col_exp4:
         gherkin_data = st.session_state.get('gherkin_data')
         if gherkin_data:
-            st.download_button(
-                label="Gherkin",
-                data=gherkin_data,
-                file_name="test_cases.feature",
-                mime="text/plain",
-                use_container_width=True,
-                key="dl_gherkin"
-            )
+            st.download_button(label="Gherkin", data=gherkin_data, file_name="test_cases.feature", mime="text/plain", use_container_width=True, key="dl_gherkin")
         else:
             st.warning("Gherkin indisponible")
 
 # --- Footer ---
-st.markdown("""
+st.markdown(f"""
 <div class="footer">
-    QA Test Generator · Propuls&eacute; par l'IA · Fait pour la communaut&eacute; QA<br>
+    QA Test Generator {ICON_SHIELD} Propuls&eacute; par l'IA · Fait pour la communaut&eacute; QA<br>
     <span style="font-size: 0.7rem; color: #d1d5db;">Un outil par Amadou FOFANA — Le Testeur Augment&eacute;</span>
 </div>
 """, unsafe_allow_html=True)
