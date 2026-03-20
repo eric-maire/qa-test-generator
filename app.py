@@ -168,7 +168,7 @@ RÈGLES GÉNÉRALES :
 """
 
 # --- CSV Conversion Prompt ---
-CSV_CONVERSION_PROMPT = """Tu es un assistant qui convertit des cas de test en format JSON strict pour import Jira.
+CSV_CONVERSION_PROMPT = """Tu es un assistant qui convertit des cas de test en format JSON strict pour import Azure DevOps.
 
 À partir des cas de test fournis, extrais UNIQUEMENT les cas de test fonctionnels et les cas limites (PAS les risques) et retourne un tableau JSON.
 
@@ -247,7 +247,7 @@ with st.sidebar:
     1. Collez votre User Story
     2. *(Optionnel)* Ajoutez le contexte de votre app
     3. Cliquez sur **Générer**
-    4. Exportez en Markdown, TXT, CSV Jira ou Gherkin
+    4. Exportez en Markdown, TXT, CSV Azure DevOps ou Gherkin
     """)
 
     st.markdown("---")
@@ -272,31 +272,44 @@ min 8 caractères, 1 majuscule,
 
     st.markdown("---")
     st.markdown("### Exports disponibles")
-    st.markdown("Markdown · TXT · CSV Jira · Gherkin")
+    st.markdown("Markdown · TXT · CSV Azure DevOps · Gherkin")
 
 # --- Helper: Convert JSON to CSV ---
-def json_to_jira_csv(test_cases_json):
+def json_to_azure_csv(test_cases_json):
     output = io.StringIO()
-    fieldnames = ["Test Case ID", "Résumé", "Description", "Preconditions", "Test Steps", "Expected Result", "Priorité"]
+    fieldnames = ["Title", "Step Action", "Step Expected"]
     writer = csv.DictWriter(output, fieldnames=fieldnames, quoting=csv.QUOTE_ALL)
     writer.writeheader()
+
+    def parse_numbered_list(text):
+        text = (text or "").replace('\r\n', '\n').replace('\r', '\n').strip()
+        if not text:
+            return []
+        lines = [l.strip() for l in text.split('\n') if l.strip()]
+        parsed = []
+        for line in lines:
+            m = re.match(r'^\s*\d+\.\s*(.*)$', line)
+            if m:
+                parsed.append(m.group(1).strip())
+            else:
+                parsed.append(line)
+        return parsed
+
     for tc in test_cases_json:
-        def format_steps(val):
-            val = val or ""
-            val = re.sub(r'(?<!\n)\s*(\d+)\.\s', lambda m: ('\n' + m.group(1) + '. ') if int(m.group(1)) > 1 else (m.group(1) + '. '), val)
-            return val.strip()
-        def trunc(val, limit=255):
-            val = val or ""
-            return val[:252] + "..." if len(val) > limit else val
-        writer.writerow({
-            "Test Case ID": tc.get("Test Case ID", ""),
-            "Résumé": trunc(tc.get("Summary", "")),
-            "Description": tc.get("Description", ""),
-            "Preconditions": trunc(format_steps(tc.get("Preconditions", ""))),
-            "Test Steps": trunc(format_steps(tc.get("Test Steps", ""))),
-            "Expected Result": trunc(format_steps(tc.get("Expected Result", ""))),
-            "Priorité": tc.get("Priority", "Moyenne"),
-        })
+        title = tc.get("Summary", "").strip()
+        test_steps = parse_numbered_list(tc.get("Test Steps", ""))
+        expected_results = parse_numbered_list(tc.get("Expected Result", ""))
+
+        # 1st line: only title
+        writer.writerow({"Title": title, "Step Action": "", "Step Expected": ""})
+
+        # remaining rows: step/action mapping
+        max_rows = max(len(test_steps), len(expected_results))
+        for i in range(max_rows):
+            action = test_steps[i] if i < len(test_steps) else ""
+            expected = expected_results[i] if i < len(expected_results) else ""
+            writer.writerow({"Title": "", "Step Action": action, "Step Expected": expected})
+
     return output.getvalue()
 
 # --- Main Inputs ---
@@ -345,7 +358,7 @@ if generate:
             st.session_state['user_story'] = user_story
             st.session_state['app_context'] = app_context if app_context else ""
 
-            with st.spinner("Préparation de l'export CSV Jira..."):
+            with st.spinner("Préparation de l'export CSV Azure DevOps..."):
                 try:
                     csv_model = genai.GenerativeModel(model_name="gemini-2.5-flash", system_instruction=CSV_CONVERSION_PROMPT)
                     csv_response = csv_model.generate_content(f"Convertis ces cas de test en JSON :\n\n{result}")
@@ -354,7 +367,7 @@ if generate:
                     if raw_json.endswith("```"): raw_json = raw_json.rsplit("```", 1)[0]
                     raw_json = raw_json.strip()
                     test_cases = json.loads(raw_json)
-                    st.session_state['csv_data'] = json_to_jira_csv(test_cases)
+                    st.session_state['csv_data'] = json_to_azure_csv(test_cases)
                     st.session_state['csv_count'] = len(test_cases)
                 except Exception:
                     st.session_state['csv_data'] = None
@@ -416,7 +429,7 @@ if st.session_state.get('result'):
         csv_data = st.session_state.get('csv_data')
         csv_count = st.session_state.get('csv_count', 0)
         if csv_data:
-            st.download_button(label=f"CSV Jira ({csv_count})", data=csv_data, file_name="test_cases_jira.csv", mime="text/csv", use_container_width=True, key="dl_csv")
+            st.download_button(label=f"CSV Azure DevOps ({csv_count})", data=csv_data, file_name="test_cases_azure_devops.csv", mime="text/csv", use_container_width=True, key="dl_csv")
         else:
             st.warning("CSV indisponible")
 
