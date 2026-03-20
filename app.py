@@ -237,7 +237,7 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # --- API Key (from secrets) ---
-api_key = st.secrets.get("MAMMOUTH_API_KEY", st.secrets.get("GEMINI_API_KEY", ""))
+api_key = st.secrets.get("MAMMOUTH_API_KEY", "")
 
 with st.sidebar:
     st.markdown("### QA Test Generator")
@@ -252,9 +252,16 @@ with st.sidebar:
 
     st.markdown("---")
 
+    # Modèles disponibles configurables via secrets (clé MAMMOUTH_MODELS)
+    default_models = ["claude-sonnet-4-6", "claude-opus-4-6", "gemini-3.1-pro-preview", "gpt-4o", "gpt-5.2"]
+    models = st.secrets.get("MAMMOUTH_MODELS", default_models)
+
+    if not isinstance(models, (list, tuple)) or len(models) == 0:
+        models = default_models
+
     model_choice = st.selectbox(
         "Modèle LLM",
-        options=["gpt-4.1", "gpt-3.5-turbo", "gpt-4o", "gpt-3.5", "mammouth-qa"],
+        options=models,
         index=0,
         help="Choisir le modèle utilisé pour générer les cas de test et les conversions."
     )
