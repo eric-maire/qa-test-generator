@@ -1,5 +1,5 @@
 import streamlit as st
-import google.generativeai as genai
+import requests
 import json
 import time
 import csv
@@ -237,7 +237,7 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # --- API Key (from secrets) ---
-api_key = st.secrets.get("GEMINI_API_KEY", "")
+api_key = st.secrets.get("MAMMOUTH_API_KEY", st.secrets.get("GEMINI_API_KEY", ""))
 
 with st.sidebar:
     st.markdown("### QA Test Generator")
@@ -251,6 +251,14 @@ with st.sidebar:
     """)
 
     st.markdown("---")
+
+    model_choice = st.selectbox(
+        "Modèle LLM",
+        options=["gpt-4.1", "gpt-3.5-turbo", "gpt-4o", "gpt-3.5", "mammouth-qa"],
+        index=0,
+        help="Choisir le modèle utilisé pour générer les cas de test et les conversions."
+    )
+
     st.markdown("### Exemple de User Story")
     st.code("""En tant qu'utilisateur,
 je veux pouvoir réinitialiser
@@ -312,6 +320,37 @@ def json_to_azure_csv(test_cases_json):
 
     return output.getvalue()
 
+# --- Mamouth API helper ---
+def mamouth_generate(user_message, api_key, model="gpt-4.1", temperature=0.2, max_tokens=1200):
+    url = "https://api.mammouth.ai/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "model": model,
+        "temperature": temperature,
+        "max_tokens": max_tokens,
+        "messages": [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": user_message},
+        ],
+    }
+
+    response = requests.post(url, headers=headers, json=payload, timeout=90)
+    response.raise_for_status()
+    data = response.json()
+
+    if not data.get("choices") or not data["choices"]:
+        raise ValueError("Mammouth API returned empty choices")
+
+    # Compatible OpenAI-style response
+    content = data["choices"][0].get("message", {}).get("content")
+    if content is None:
+        raise ValueError("Mammouth API response missing message content")
+
+    return content
+
 # --- Main Inputs ---
 st.markdown(f'<p class="section-title">{ICON_CLIPBOARD} Votre User Story</p>', unsafe_allow_html=True)
 user_story = st.text_area(
@@ -342,17 +381,13 @@ if generate:
         st.error("Collez une User Story pour commencer.")
     else:
         try:
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel(model_name="gemini-2.5-flash", system_instruction=SYSTEM_PROMPT)
-
             if app_context and app_context.strip():
                 user_message = f"CONTEXTE APPLICATIF :\n{app_context}\n\n---\n\nUSER STORY À ANALYSER :\n{user_story}"
             else:
                 user_message = f"AUCUN CONTEXTE APPLICATIF FOURNI. Tu DOIS utiliser [À DÉFINIR PAR LE TESTEUR] pour toute donnée spécifique à l'application. N'invente RIEN.\n\n---\n\nUSER STORY À ANALYSER :\n{user_story}"
 
             with st.spinner("Analyse et génération des tests..."):
-                response = model.generate_content(user_message)
-                result = response.text
+                result = mamouth_generate(user_message, api_key, model=model_choice)
 
             st.session_state['result'] = result
             st.session_state['user_story'] = user_story
@@ -360,9 +395,8 @@ if generate:
 
             with st.spinner("Préparation de l'export CSV Azure DevOps..."):
                 try:
-                    csv_model = genai.GenerativeModel(model_name="gemini-2.5-flash", system_instruction=CSV_CONVERSION_PROMPT)
-                    csv_response = csv_model.generate_content(f"Convertis ces cas de test en JSON :\n\n{result}")
-                    raw_json = csv_response.text.strip()
+                    csv_response_text = mamouth_generate(f"Convertis ces cas de test en JSON :\n\n{result}", api_key, model=model_choice)
+                    raw_json = csv_response_text.strip()
                     if raw_json.startswith("```"): raw_json = raw_json.split("\n", 1)[1]
                     if raw_json.endswith("```"): raw_json = raw_json.rsplit("```", 1)[0]
                     raw_json = raw_json.strip()
@@ -375,9 +409,7 @@ if generate:
 
             with st.spinner("Génération des scénarios Gherkin..."):
                 try:
-                    gherkin_model = genai.GenerativeModel(model_name="gemini-2.5-flash", system_instruction=GHERKIN_CONVERSION_PROMPT)
-                    gherkin_response = gherkin_model.generate_content(f"Convertis ces cas de test en scénarios Gherkin :\n\n{result}")
-                    gherkin_text = gherkin_response.text.strip()
+                    gherkin_text = mamouth_generate(f"Convertis ces cas de test en scénarios Gherkin :\n\n{result}", api_key, model=model_choice).strip()
                     if gherkin_text.startswith("```"): gherkin_text = gherkin_text.split("\n", 1)[1]
                     if gherkin_text.endswith("```"): gherkin_text = gherkin_text.rsplit("```", 1)[0]
                     st.session_state['gherkin_data'] = gherkin_text.strip()
