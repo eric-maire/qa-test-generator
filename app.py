@@ -286,6 +286,7 @@ with col_demo2:
         st.session_state['step'] = 'input'
         st.session_state['result'] = None
         st.session_state['questions'] = None
+        st.rerun()
 
 user_story = st.text_area(
     "User Story", height=150, value=st.session_state.get('demo_us', ''),
@@ -392,7 +393,6 @@ if st.session_state.get('step') == 'questions' and st.session_state.get('questio
             submitted = st.form_submit_button("Générer les cas de test", use_container_width=True, type="primary")
 
         if submitted:
-            # Build context from answers
             context_parts = []
             for q in questions:
                 answer = answers.get(q['id'], '').strip()
@@ -423,7 +423,6 @@ if st.session_state.get('step') == 'questions' and st.session_state.get('questio
             except Exception as e:
                 st.error(f"Erreur : {str(e)}")
 
-    # Back button
     if st.button("Revenir à la saisie", key="back_to_input"):
         st.session_state['step'] = 'input'
         st.session_state['questions'] = None
@@ -449,7 +448,6 @@ if st.session_state.get('result'):
         else:
             st.info("Cliquez sur le bouton Gherkin dans les exports pour générer les scénarios BDD.")
 
-    # --- Export Options ---
     st.markdown("---")
     st.markdown(f'<p class="section-title">{ICON_DOWNLOAD} Exporter les r&eacute;sultats</p>', unsafe_allow_html=True)
 
@@ -497,7 +495,6 @@ if st.session_state.get('result'):
                     else:
                         st.error("Erreur Gherkin. Réessayez.")
 
-    # --- New generation button ---
     st.markdown("---")
     col_new1, col_new2, col_new3 = st.columns([1, 1, 1])
     with col_new2:
