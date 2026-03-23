@@ -5,14 +5,15 @@
 ## Infos projet
 - **Début du plan** : 15/03/2026
 - **Objectif 90 jours** : 100-500 utilisateurs réels + retours terrain exploitables
+- **Fin Phase 1** : 14/04/2026 (Jour 30)
 - **URL app** : https://app-test-generator.streamlit.app
 - **Repo** : https://github.com/TesteurGenAI/qa-test-generator
 
 ---
 
-## Phase 1 — Jours 1 à 30 : Prototype
+## Phase 1 — Jours 1 à 30 : Prototype (15/03 → 14/04/2026)
 
-### Jour 1 (15-16/03/2026) — ✅ FAIT
+### Jours 1-2 (15-16/03/2026) — ✅ FAIT
 - [x] Prompt QA qui génère cas de test, edge cases, risques
 - [x] App Streamlit déployée sur Streamlit Cloud
 - [x] API Gemini 2.5 Flash connectée (secret Streamlit)
@@ -20,70 +21,68 @@
 - [x] Lien envoyé à 8 testeurs
 - [x] Retours projet précédent : 8/8 n'avaient pas testé (trop de friction)
 - [x] 4 testeurs ont testé la v1 et donné des retours
-- [x] Itération v2 : ajout champ "Contexte applicatif" + prompt amélioré pour des cas de test exécutables
-- [x] Message envoyé à Luis pour retester la v2
+- [x] Itération v2 : ajout champ "Contexte applicatif" + prompt amélioré
 - [x] .gitignore ajouté
 - [x] Journal de bord créé
 
-### Jour 2 (17/03/2026) — ✅ FAIT
+### Jour 3 (17/03/2026) — ✅ FAIT
 - [x] 11 testeurs au total — 10 retours exploitables
-- [x] Post LinkedIn publié (carrousel + CTA "commente QA")
-- [x] Prompt corrigé : plus de données inventées — [À DÉFINIR PAR LE TESTEUR] quand pas de contexte
-- [x] Export CSV compatible Jira/Xray ajouté
-- [x] Fix boutons d'export : persistent après téléchargement (session_state)
-- [x] Luis a retesté la v2 — validé, nouvelle suggestion sur les données
-- [x] Import CSV dans Jira testé et validé
-- [x] Fichier de configuration Jira sauvegardé pour imports futurs
-- [x] Troncature des champs à 255 caractères (limite Jira champs texte court)
+- [x] Post LinkedIn carrousel (2407 impressions, 48 réactions, 18 commentaires)
+- [x] Prompt corrigé : plus de données inventées
+- [x] Export CSV compatible Jira/Xray ajouté + import Jira validé
+- [x] Fix boutons d'export (session_state)
 - [x] Newsletter LinkedIn "Le Testeur Augmenté" configurée
 
-### Jour 3 (18/03/2026) — ✅ FAIT
-- [x] Post LinkedIn : 2 407 impressions, 48 réactions, 18 commentaires, 5 republications
-- [x] 9 personnes ont commenté "QA" — tous contactés en DM avec le lien
-- [x] Nouveau contact : Elodie Juino — intéressée, veut une démo après sa recette
-- [x] Export Gherkin / BDD ajouté — fichier .feature téléchargeable
-- [x] Preview Gherkin intégré dans l'app (onglet avec coloration syntaxique)
-- [x] 4 formats d'export disponibles : Markdown, TXT, CSV Jira, Gherkin
-- [x] 5 itérations produit livrées en 3 jours
-- [x] Messages envoyés à Lyne et Aymen pour retester le Gherkin
+### Jour 4 (18/03/2026) — ✅ FAIT
+- [x] 9 commentaires "QA" sur LinkedIn — tous contactés en DM
+- [x] Export Gherkin / BDD ajouté
+- [x] 4 formats d'export : Markdown, TXT, CSV Jira, Gherkin
+- [x] 5 itérations produit en 4 jours
 
-### Jour 4 (19-20/03/2026) — ✅ FAIT
-- [x] Newsletter #1 publiée : "Les testeurs passent encore 2h à écrire des cas de test. J'ai réduit ça à 30 secondes avec l'IA"
-- [x] 928 abonnés à la newsletter en 24h
-- [x] Karima SORIANO (Test Manager Bforbank) — lead enterprise chaud
-- [x] Luis reteste v4-v5 : retour critique — [À DÉFINIR PAR LE TESTEUR] improductif, veut un dialogue interactif IA/testeur
-- [x] Bouton "Voir une démo — pré-remplir avec un exemple" ajouté
-- [x] Optimisation performance : CSV et Gherkin générés à la demande (pas automatiquement)
-- [x] Temps de génération ramené à ~30 secondes (1 seul appel API au lieu de 3)
+### Jours 5-6 (19-20/03/2026) — ✅ FAIT
+- [x] Newsletter #1 publiée — 928 abonnés en 24h
+- [x] Karima SORIANO (Test Manager Bforbank) — lead enterprise
+- [x] Luis reteste : [À DÉFINIR PAR LE TESTEUR] improductif, veut un dialogue interactif
+- [x] Bouton "Voir une démo" ajouté
+- [x] Performance optimisée : CSV et Gherkin à la demande (~30s au lieu de 1min30)
 - [x] Design épuré : icônes SVG émeraude, suppression des emojis
-- [x] Post LinkedIn #2 préparé (hallucinations IA dans les tests)
-- [x] Lyne engagée — va retester le Gherkin
+
+### Jours 7-8 (21-23/03/2026) — ✅ FAIT
+- [x] Testeur 13 — Rezika D : "ça marche très bien, résultat similaire à Copilot mais c'est bien d'avoir un outil spécialisé"
+- [x] Vidéo démo 30 secondes tournée et publiée sur LinkedIn
+- [x] Post LinkedIn #2 vidéo publié
+- [x] Post LinkedIn #3 préparé (hallucinations IA)
+- [x] Newsletter #2 rédigée (hallucinations IA + dialogue interactif)
+- [x] Julien Botella (Smartesting/Lynqa) a contacté — décliné, reste focus
+- [x] MODE GUIDÉ LIVRÉ : dialogue interactif IA/testeur — l'IA pose des questions avant de générer
+- [x] 2 modes disponibles : Guidé (questions d'abord) et Direct (génération immédiate)
+- [x] Message envoyé à Luis pour tester le mode guidé
 
 ### Leçons apprises
 - La friction tue l'adoption : Ollama + API tokens + install = personne ne teste
 - Zéro installation = condition non négociable
-- "Pas eu le temps" = "trop compliqué pour que je fasse l'effort"
-- Le contexte applicatif change tout : sans contexte, les cas de test sont génériques et inexécutables (retour Luis)
-- Les retours terrain sont plus utiles que la réflexion solo — itérer en < 24h crée de la confiance
-- Bug Diawando = restriction géo API Gemini (Guinée-Conakry), pas un bug de code
-- L'export CSV Jira est la feature la plus demandée (3 testeurs indépendamment)
-- Les LLM inventent des données si on ne leur interdit pas explicitement — il faut des règles très strictes dans le prompt
-- Streamlit : les boutons disparaissent au rerun — utiliser session_state pour persister les résultats
-- Jira : les champs custom texte court sont limités à 255 caractères et ne supportent pas les retours à la ligne
-- Le CTA "commente QA" sur LinkedIn génère des leads qualifiés — 9 commentaires QA en 24h
-- Montrer aux testeurs que leur feedback devient une feature en 24h crée un cycle vertueux de confiance
+- Le contexte applicatif change tout (retour Luis)
+- Les retours terrain > la réflexion solo — itérer en < 24h crée de la confiance
+- L'export CSV Jira est la feature la plus demandée (3 testeurs)
+- Les LLM inventent des données si on ne l'interdit pas explicitement
+- Streamlit : session_state pour persister les résultats
+- Jira : champs texte court limités à 255 caractères
+- CTA "commente QA" génère des leads qualifiés
 - 928 abonnés newsletter en 24h — le marché QA + IA a une demande forte
-- Engagement LinkedIn ≠ utilisation réelle — les gens s'abonnent mais ne testent pas forcément
-- 3 appels API séquentiels = 1min30 — inacceptable. Générer à la demande, pas automatiquement
-- Le [À DÉFINIR PAR LE TESTEUR] est une demi-solution — Luis veut un dialogue interactif (prochaine évolution majeure)
+- Engagement LinkedIn ≠ utilisation réelle
+- Le [À DÉFINIR PAR LE TESTEUR] est une demi-solution — le dialogue interactif est la vraie réponse
+- "Résultat similaire à Copilot" — la spécialisation et les exports sont les différenciateurs actuels
+- Les acteurs établis (Smartesting) repèrent ta newsletter — signal de crédibilité
+- Varier les hooks LinkedIn — ne pas réutiliser le même plus de 2 fois
 
 ### En attente
-- [ ] Publier le post LinkedIn #2 (hallucinations IA)
-- [ ] Retour de Lyne sur le Gherkin
-- [ ] Retour de Karima (Bforbank) — relancer dans 1 semaine
+- [ ] Retour de Luis sur le mode guidé
+- [ ] Publier le post LinkedIn #3 (hallucinations IA)
+- [ ] Publier la newsletter #2
+- [ ] Retour de Karima (Bforbank) — relancer semaine du 27/03
 - [ ] Retour de Diawando avec VPN
-- [ ] Retour d'Elodie après sa recette (relancer dans 2 semaines)
-- [ ] Faire la vidéo démo 30 secondes
+- [ ] Retour d'Elodie — relancer début avril
+- [ ] Résultats du post vidéo LinkedIn
 - [ ] Convertir les 928 abonnés newsletter en utilisateurs actifs
 
 ---
@@ -92,138 +91,48 @@
 
 ### Testeur 1 — Luis Cavalheiro
 - **A testé ?** : Oui (v1 + v2 + v4-v5)
-- **Date** : 16-19/03/2026
-- **Retour v1 :**
-
-> Je sais que c'est un prototype mais je vois 2 grandes limitations :
-> 1. Comment passer le contexte de la User Story
-> 2. Comment generer les données de test
-
-- **Retour v2 :**
-
-> C'est beaucoup mieux. Maintenant l'appli devrait demander au user de spécifier les données quand celles ci ne sont pas définies au lieu des générer des fausses données
-
-- **Retour v4-v5 :**
-
-> C'est pas mieux :( Des steps comme celui-ci sont une perte de temps: Laisser le champ [NOM DU CHAMP EMAIL – À DÉFINIR PAR LE TESTEUR] vide.
-> J'imaginais plus un dialogue entre l'IA et le testeur pour obtenir des informations manquante autours des données. Ajouter "À DÉFINIR PAR LE TESTEUR" est tres improductif sont l'IA génère des centaines de tests...
-> L'idée est d'accélérer la génération des tests mais des tests prêts à être exécutés
-
-- **Actions prises** : v2 contexte, v3 prompt strict, v4-v5 — Luis demande un dialogue interactif IA/testeur. Noté au backlog comme évolution majeure.
+- **Retour v1 :** Manque de contexte, cas de test trop génériques
+- **Retour v2 :** Mieux, mais l'IA invente des données
+- **Retour v4-v5 :** [À DÉFINIR PAR LE TESTEUR] improductif, veut un dialogue interactif
+- **Actions** : v2 contexte, v3 prompt strict, MODE GUIDÉ livré (Jour 8). En attente retour.
 
 ### Testeur 2 — Moez Ben Khaled
-- **A testé ?** : Oui (v1)
-- **Date** : 16/03/2026
-- **Retour :**
-
-> J'ai testé l'outil cet aprem et c'est vraiment top.
-> Y a t'il un moyen d'évoluer l'outil pour la création des TA avec les cas de test ?
-
-- **Action prise** : Noté pour backlog — génération de tests d'acceptance (TA)
+- **Retour :** "c'est vraiment top", demande génération TA → backlog
 
 ### Testeur 3 — Romain De Page
-- **A testé ?** : Oui (v1)
-- **Date** : 16/03/2026
-- **Retour :**
-
-> J'ai testé ton outil il est vraiment bien. J'ai même exporté en .txt, c'est vraiment bien.
-
-- **Action prise** : Aucune — retour positif
+- **Retour :** "vraiment bien", a exporté en .txt
 
 ### Testeur 4 — Diawando DIAWARA
-- **A testé ?** : Partiellement
-- **Date** : 16/03/2026
-- **Retour :**
-
-> Les cas de tests ne sont pas générés. Je vais activer mon vpn.
-
-- **Action prise** : Restriction géo API Gemini (Guinée-Conakry). En attente.
+- **Retour :** Restriction géo API Gemini (Guinée-Conakry). En attente VPN.
 
 ### Testeur 5 — Ken Defossez
-- **A testé ?** : Oui
-- **Date** : 17-18/03/2026
-- **Retour :**
-
-> Congratz ! Bug PixelConnect. Sinon la disjonction des cas de test et risques est top !
-> On nous demande des initiatives AI, la tienne est particulièrement intéressante et aboutie.
-
-- **Action prise** : Bug corrigé. Signal B2B fort.
+- **Retour :** Bug PixelConnect corrigé. Signal B2B : "on nous demande des initiatives AI"
 
 ### Testeur 6 — Aymen Ismail
-- **A testé ?** : Oui
-- **Date** : 17/03/2026
-- **Retour :**
-
-> Appli fonctionne parfaitement. Export CSV pour JIRA/XRAY. Ajouter gherkin et CSV exploitable.
-
-- **Action prise** : CSV ajouté (Jour 2). Gherkin ajouté (Jour 3).
+- **Retour :** Demande CSV Jira et Gherkin → les deux livrés
 
 ### Testeur 7 — Tasnim Ferchichi
-- **A testé ?** : Oui
-- **Date** : 17/03/2026
-- **Retour :**
-
-> Assez cohérent avec contexte. Faire une matrice de test serait bien.
-
-- **Action prise** : Matrice de test au backlog.
+- **Retour :** "cohérent avec contexte", demande matrice de test → backlog
 
 ### Testeur 8 — Kalidou BA
-- **A testé ?** : Oui
-- **Date** : 17/03/2026
-- **Retour :**
-
-> Super APP. Possible de linker APK ou URL pour générer automatiquement ?
-
-- **Action prise** : Vision long terme.
+- **Retour :** "super APP", demande analyse par URL/APK → vision long terme
 
 ### Testeur 9 — Nicolas Trzcinski
-- **A testé ?** : Oui
-- **Date** : 17/03/2026
-- **Retour :**
-
-> Intéressant ! Je travaille sur un projet similaire connecté Jira/Xray. Collaboration future ?
-
-- **Action prise** : Déclinée pour l'instant.
+- **Retour :** Projet similaire Jira/Xray, propose collaboration → déclinée
 
 ### Testeur 10 — Lyne Voctabah
-- **A testé ?** : Oui
-- **Date** : 17-20/03/2026
-- **Retour :**
-
-> Sauvegarde les user stories ? Gain de temps, simple, bien détaillé. Approche BDD ?
-
-- **Action prise** : Historique au backlog. Gherkin ajouté. Reteste en cours.
+- **Retour :** Demande historique et BDD → Gherkin livré, historique au backlog
 
 ### Testeur 11 — Elodie Juino
-- **A testé ?** : Non (pas encore)
-- **Date** : 18/03/2026
-- **Retour :**
-
-> Compatible client lourd ? Avec plaisir après notre recette. Ton outil m'aidera sûrement.
-
-- **Action prise** : Relancer dans 2 semaines.
+- **Retour :** "après notre recette" → relancer début avril
 
 ### Testeur 12 — Karima SORIANO
-- **A testé ?** : Non (pas encore)
-- **Date** : 20/03/2026
-- **Retour :**
-
-> Intéressée, l'IA hallucine parfois quand les critères d'acceptance ne sont pas clairs. Faut tester sur une vraie US depuis le PC pro si le proxy ne bloque pas.
-
-- **Action prise** : Lead enterprise (Bforbank). Relancer dans 1 semaine.
-
+- **Retour :** Lead enterprise Bforbank, "faut tester sur une vraie US" → relancer semaine du 27/03
 
 ### Testeur 13 — Rezika D
-- **A testé ?** : Oui
-- **Date** : 22/03/2026
-- **Retour :**
+- **Retour :** "ça marche très bien, similaire à Copilot mais bien d'avoir un outil spécialisé"
 
-> Merci beaucoup, je viens de faire un test, et franchement je trouve que ça marche très bien,
-> la liste des cas de tests est complète y a les cas passants et non passants, il faut quand même bien vérifier derrière si tout est ok,
-> après j'ai déjà essayé de faire la même chose sur copilote pa ex et j'ai eu presque le même résultat en terme de cas de tests
-> mais c'est bien d'voir un agent IA spécialement fait pour les tests
-
-### Leads LinkedIn (post carrousel — 18/03/2026)
+### Leads LinkedIn
 - Lewis Dieu Ne Dort BABE YAKA — Senior QA Engineer — DM envoyé
 - Ali KAR — Ingénieur Testing Agile ISTQB — DM envoyé
 - Ahlem Ayari — Étudiante ISITCOM — DM envoyé
@@ -232,62 +141,72 @@
 - Abdelkrim BOUHRAOUA — QA Testeur ISTQB — DM envoyé
 - Abdessamad Nacih — Ingénieur QA — DM envoyé
 
+### Contact industrie
+- Julien Botella (Smartesting/Lynqa) — décliné, reste focus
+
 ---
 
 ## Métriques
 
-| Métrique | Objectif Phase 1 | Actuel |
-|----------|-----------------|--------|
-| Prototype utilisable | ✅ | ✅ |
-| Testeurs confirmés | 10+ | 12 ✅ |
-| Leads LinkedIn (DM envoyés) | - | 7 nouveaux |
-| Testeurs qui ont testé | 5+ | 10 ✅ |
-| Retours exploitables | 3+ | 11 ✅ |
-| Itérations produit | - | 7 (contexte, prompt, CSV, fix boutons, Gherkin, démo, perf) |
-| Formats d'export | - | 4 (Markdown, TXT, CSV Jira, Gherkin) |
-| Post LinkedIn carrousel | 1 | 1 ✅ (2407 impressions, 48 réactions, 18 commentaires) |
-| Newsletter publiée | 1 | 1 ✅ |
-| Abonnés newsletter | - | 928 |
-| Import Jira validé | - | ✅ |
-| Temps de génération | 30s | ~30s ✅ |
+| Métrique | Objectif Phase 1 | Actuel | Jour |
+|----------|-----------------|--------|------|
+| Prototype utilisable | ✅ | ✅ | J2 |
+| Testeurs confirmés | 10+ | 13 ✅ | J8 |
+| Leads LinkedIn | - | 7 | J4 |
+| Testeurs qui ont testé | 5+ | 11 ✅ | J8 |
+| Retours exploitables | 3+ | 12 ✅ | J8 |
+| Itérations produit | - | 8 | J8 |
+| Formats d'export | - | 4 | J4 |
+| Modes de génération | - | 2 (Guidé + Direct) | J8 |
+| Posts LinkedIn | 3 | 3 | J8 |
+| Newsletter publiée | 1 | 1 ✅ | J6 |
+| Abonnés newsletter | - | 928 | J6 |
+| Import Jira validé | - | ✅ | J3 |
+| Temps de génération | 30s | ~30s ✅ | J6 |
+| Vidéo démo | - | ✅ | J8 |
+| Jours écoulés / 30 | - | 8/30 (27%) | - |
+| Utilisateurs actifs | 100-500 | ~20 | J8 |
 
 ---
 
 ## Décisions prises
-1. **Stack** : Streamlit + Gemini 2.5 Flash (pas Ollama)
+1. **Stack** : Streamlit + Gemini 2.5 Flash
 2. **Architecture** : 1 appel LLM principal, CSV et Gherkin à la demande
-3. **Go-to-market** : Option A — PLG, self-service, 19-49€/mois
+3. **Go-to-market** : PLG, self-service, 19-49€/mois
 4. **Priorité** : Retours terrain AVANT nouvelles features
-5. **Champ contexte applicatif** : ajouté suite retour Luis
-6. **Prompt strict** : ne jamais inventer de données — [À DÉFINIR PAR LE TESTEUR]
-7. **Export CSV Jira/Xray** : ajouté suite retours Aymen, Nicolas, Moez
-8. **Export Gherkin/BDD** : ajouté suite retours Aymen, Lyne
-9. **Collaboration Nicolas** : déclinée pour l'instant, reste solo
+5. **Contexte applicatif** : ajouté (v2, retour Luis)
+6. **Prompt strict** : ne jamais inventer de données (v3)
+7. **Export CSV Jira/Xray** : retours Aymen, Nicolas, Moez
+8. **Export Gherkin/BDD** : retours Aymen, Lyne
+9. **Collaboration Nicolas** : déclinée
 10. **Repo GitHub public** : nécessaire pour Streamlit Cloud gratuit
-11. **Formation** : en mode maintenance, focus sur le produit QA Test Generator
-12. **Newsletter** : "Le Testeur Augmenté" — hebdomadaire — #1 publié
-13. **Performance** : CSV et Gherkin générés à la demande, pas automatiquement
-14. **Bouton démo** : pré-remplissage d'exemple pour convertir les visiteurs
+11. **Formation** : en mode maintenance
+12. **Newsletter** : "Le Testeur Augmenté" — hebdomadaire
+13. **Performance** : CSV et Gherkin à la demande
+14. **Mode guidé** : dialogue interactif IA/testeur (v8, retour Luis)
+15. **Smartesting/Lynqa** : contact décliné
+16. **Migration Next.js** : prévue Phase 2
 
-## Backlog (demandé par les testeurs)
-- [x] Corriger le prompt — ne pas inventer de données (Luis v2)
-- [x] Export CSV compatible Jira/Xray (Aymen, Nicolas, Moez)
-- [x] Import Jira testé + fichier de config sauvegardé
+## Backlog
+- [x] Prompt strict (Luis v2)
+- [x] Export CSV Jira/Xray (Aymen, Nicolas, Moez)
+- [x] Import Jira + config sauvegardée
 - [x] Export Gherkin / BDD (Aymen, Lyne)
 - [x] Bouton démo pré-rempli
-- [x] Optimisation performance (1 appel API au lieu de 3)
-- [ ] **Dialogue interactif IA/testeur pour compléter les données manquantes (Luis v4-v5)** — ÉVOLUTION MAJEURE
+- [x] Optimisation performance
+- [x] Vidéo démo
+- [x] Mode guidé — dialogue interactif (Luis v4-v5)
 - [ ] Historique / sauvegarde des générations (Lyne)
 - [ ] Génération de tests d'acceptance / TA (Moez)
 - [ ] Matrice de test (Tasnim)
-- [ ] Vidéo démo 30 secondes
 - [ ] Analyse d'app par URL/APK (Kalidou) — vision long terme
-- [ ] Gestion des restrictions géographiques API (Diawando)
+- [ ] Gestion restrictions géo API (Diawando)
+- [ ] Migration Next.js (Phase 2)
 
 ---
 
-## Phase 2 — Jours 30 à 60 : Validation marché
+## Phase 2 — Jours 31 à 60 : Validation marché (15/04 → 14/05/2026)
 *(à compléter quand Phase 1 terminée)*
 
-## Phase 3 — Jours 60 à 90 : Produit
+## Phase 3 — Jours 61 à 90 : Produit (15/05 → 13/06/2026)
 *(à compléter quand Phase 2 terminée)*
