@@ -6,11 +6,12 @@ import csv
 import io
 import re
 
-# --- SVG Icons (Emerald, 20px, inline) ---
+# --- SVG Icons ---
 ICON_ZAP = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>'
 ICON_CLIPBOARD = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>'
 ICON_DOWNLOAD = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'
 ICON_SHIELD = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'
+ICON_MSG = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>'
 
 # --- Demo Data ---
 DEMO_USER_STORY = """En tant qu'utilisateur,
@@ -84,6 +85,10 @@ section[data-testid="stSidebar"] .stMarkdown h3 {
     border-radius: 8px !important; border: 1px solid #d1d5db !important; font-family: 'DM Sans', sans-serif !important;
 }
 .stTextArea textarea:focus { border-color: #10B981 !important; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15) !important; }
+.question-box {
+    background: #f0fdf4; border: 1px solid #a7f3d0; border-radius: 8px;
+    padding: 1rem; margin: 0.5rem 0;
+}
 .footer {
     text-align: center; color: #9ca3af; font-size: 0.8rem; padding: 2rem 0 1rem 0;
     border-top: 1px solid #e5e7eb; margin-top: 3rem;
@@ -93,12 +98,58 @@ section[data-testid="stSidebar"] .stMarkdown h3 {
 """, unsafe_allow_html=True)
 
 # --- Prompts ---
+ANALYSIS_PROMPT = """Tu es un expert QA senior. On te donne une User Story. Tu dois analyser les informations MANQUANTES nécessaires pour générer des cas de test complets et exécutables.
+
+Retourne UNIQUEMENT un JSON valide avec cette structure :
+{
+  "questions": [
+    {
+      "id": "app_name",
+      "question": "Quel est le nom de l'application ?",
+      "why": "Pour nommer les cas de test et les URLs",
+      "example": "MonBanquier.fr"
+    }
+  ]
+}
+
+RÈGLES :
+- Identifie entre 3 et 8 questions maximum — les plus importantes uniquement
+- Chaque question doit porter sur une donnée CONCRÈTE nécessaire aux cas de test
+- Catégories de questions possibles : nom de l'app, URLs/pages, noms de boutons/champs, rôles utilisateurs, règles de validation (mot de passe, email...), messages d'erreur/succès, données de test (identifiants), contraintes techniques
+- N'inclus PAS de questions sur la User Story elle-même — elle est déjà fournie
+- Le champ "why" explique pourquoi cette info est nécessaire
+- Le champ "example" donne un exemple concret de réponse
+- Retourne UNIQUEMENT le JSON, rien d'autre
+- Pas de backticks, pas de commentaires"""
+
 SYSTEM_PROMPT = """Tu es un expert QA senior avec 15 ans d'expérience en test logiciel.
 
 Tu génères des cas de test CONCRETS et EXÉCUTABLES. Un testeur junior qui ne connaît pas l'application doit pouvoir exécuter chaque cas de test sans poser de question.
 
-=== RÈGLE ABSOLUE SUR LES DONNÉES ===
+=== RÈGLE ABSOLUE ===
+Utilise UNIQUEMENT les informations fournies dans le contexte applicatif.
+Ne complète pas, n'invente pas, n'extrapole pas.
+Si malgré le contexte fourni certaines données manquent encore, marque-les [À DÉFINIR PAR LE TESTEUR].
+=== FIN RÈGLE ===
 
+À partir de la User Story et du contexte applicatif fourni, génère :
+
+## 1. CAS DE TEST FONCTIONNELS
+Pour chaque cas de test : Titre, Préconditions, Données de test, Étapes numérotées, Résultat attendu, Priorité (Haute/Moyenne/Basse)
+
+## 2. CAS LIMITES (EDGE CASES)
+Valeurs limites, erreurs, concurrence, timeout. Pour chaque : titre + données + description + résultat attendu
+
+## 3. SUGGESTIONS DE RISQUES
+Risques fonctionnels, performance, sécurité, intégration. Pour chaque : titre + description + impact + mitigation
+
+RÈGLES : exhaustif mais pertinent, langage clair, français sauf termes techniques, Markdown structuré."""
+
+SYSTEM_PROMPT_DIRECT = """Tu es un expert QA senior avec 15 ans d'expérience en test logiciel.
+
+Tu génères des cas de test CONCRETS et EXÉCUTABLES. Un testeur junior qui ne connaît pas l'application doit pouvoir exécuter chaque cas de test sans poser de question.
+
+=== RÈGLE ABSOLUE SUR LES DONNÉES ===
 Si un contexte applicatif est fourni :
 - Utilise UNIQUEMENT les informations données
 - Ne complète pas, n'invente pas, n'extrapole pas
@@ -107,8 +158,7 @@ Si un contexte applicatif est fourni :
 Si AUCUN contexte applicatif n'est fourni :
 - N'INVENTE AUCUN contexte
 - Pour CHAQUE donnée non fournie, écris : [À DÉFINIR PAR LE TESTEUR]
-
-=== FIN RÈGLE ABSOLUE ===
+=== FIN RÈGLE ===
 
 À partir de la User Story (et du contexte applicatif si fourni), génère :
 
@@ -121,8 +171,7 @@ Valeurs limites, erreurs, concurrence, timeout. Pour chaque : titre + données +
 ## 3. SUGGESTIONS DE RISQUES
 Risques fonctionnels, performance, sécurité, intégration. Pour chaque : titre + description + impact + mitigation
 
-RÈGLES : exhaustif mais pertinent, langage clair, français sauf termes techniques, Markdown structuré.
-"""
+RÈGLES : exhaustif mais pertinent, langage clair, français sauf termes techniques, Markdown structuré."""
 
 CSV_CONVERSION_PROMPT = """Convertis les cas de test en tableau JSON strict pour Jira.
 Extrais les cas fonctionnels et limites (PAS les risques).
@@ -157,7 +206,11 @@ with st.sidebar:
     st.markdown("### QA Test Generator")
     st.markdown("---")
     st.markdown("### Guide rapide")
-    st.markdown("1. Collez votre User Story\n2. *(Optionnel)* Ajoutez le contexte\n3. Cliquez **Générer**\n4. Exportez")
+    st.markdown("""1. Collez votre User Story
+2. Choisissez le mode :
+   - **Guidé** : l'IA vous pose des questions avant de générer
+   - **Direct** : génération immédiate
+3. Exportez en Markdown, TXT, CSV Jira ou Gherkin""")
     st.markdown("---")
     st.markdown("### Exemple de User Story")
     st.code("En tant qu'utilisateur,\nje veux pouvoir réinitialiser\nmon mot de passe via email,\nafin de récupérer l'accès\nà mon compte.", language=None)
@@ -165,7 +218,7 @@ with st.sidebar:
     st.markdown("### Exports disponibles")
     st.markdown("Markdown · TXT · CSV Jira · Gherkin")
 
-# --- Helper: CSV ---
+# --- Helpers ---
 def json_to_jira_csv(test_cases_json):
     output = io.StringIO()
     fieldnames = ["Test Case ID", "Résumé", "Description", "Preconditions", "Test Steps", "Expected Result", "Priorité"]
@@ -190,41 +243,39 @@ def json_to_jira_csv(test_cases_json):
         })
     return output.getvalue()
 
-# --- Helper: Generate CSV on demand ---
 def generate_csv(result):
     try:
         genai.configure(api_key=api_key)
-        csv_model = genai.GenerativeModel(model_name="gemini-2.5-flash", system_instruction=CSV_CONVERSION_PROMPT)
-        csv_response = csv_model.generate_content(f"Convertis ces cas de test en JSON :\n\n{result}")
-        raw_json = csv_response.text.strip()
-        if raw_json.startswith("```"): raw_json = raw_json.split("\n", 1)[1]
-        if raw_json.endswith("```"): raw_json = raw_json.rsplit("```", 1)[0]
-        raw_json = raw_json.strip()
-        test_cases = json.loads(raw_json)
-        return json_to_jira_csv(test_cases), len(test_cases)
+        m = genai.GenerativeModel(model_name="gemini-2.5-flash", system_instruction=CSV_CONVERSION_PROMPT)
+        r = m.generate_content(f"Convertis ces cas de test en JSON :\n\n{result}")
+        raw = r.text.strip()
+        if raw.startswith("```"): raw = raw.split("\n", 1)[1]
+        if raw.endswith("```"): raw = raw.rsplit("```", 1)[0]
+        tc = json.loads(raw.strip())
+        return json_to_jira_csv(tc), len(tc)
     except Exception:
         return None, 0
 
-# --- Helper: Generate Gherkin on demand ---
 def generate_gherkin(result):
     try:
         genai.configure(api_key=api_key)
-        gherkin_model = genai.GenerativeModel(model_name="gemini-2.5-flash", system_instruction=GHERKIN_CONVERSION_PROMPT)
-        gherkin_response = gherkin_model.generate_content(f"Convertis ces cas de test en scénarios Gherkin :\n\n{result}")
-        gherkin_text = gherkin_response.text.strip()
-        if gherkin_text.startswith("```"): gherkin_text = gherkin_text.split("\n", 1)[1]
-        if gherkin_text.endswith("```"): gherkin_text = gherkin_text.rsplit("```", 1)[0]
-        return gherkin_text.strip()
+        m = genai.GenerativeModel(model_name="gemini-2.5-flash", system_instruction=GHERKIN_CONVERSION_PROMPT)
+        r = m.generate_content(f"Convertis ces cas de test en scénarios Gherkin :\n\n{result}")
+        t = r.text.strip()
+        if t.startswith("```"): t = t.split("\n", 1)[1]
+        if t.endswith("```"): t = t.rsplit("```", 1)[0]
+        return t.strip()
     except Exception:
         return None
 
-# --- Demo state ---
-if 'demo_us' not in st.session_state:
-    st.session_state['demo_us'] = ""
-if 'demo_ctx' not in st.session_state:
-    st.session_state['demo_ctx'] = ""
+# --- Init session state ---
+for key in ['demo_us', 'demo_ctx', 'result', 'user_story', 'app_context',
+            'csv_data', 'csv_count', 'gherkin_data', 'questions', 'answers',
+            'step', 'analysis_us']:
+    if key not in st.session_state:
+        st.session_state[key] = "" if key in ['demo_us', 'demo_ctx', 'user_story', 'app_context', 'analysis_us'] else None if key in ['result', 'csv_data', 'gherkin_data', 'questions'] else 0 if key in ['csv_count'] else {} if key == 'answers' else 'input' if key == 'step' else None
 
-# --- Main Inputs ---
+# --- Main Input ---
 st.markdown(f'<p class="section-title">{ICON_CLIPBOARD} Votre User Story</p>', unsafe_allow_html=True)
 
 col_demo1, col_demo2, col_demo3 = st.columns([1, 1, 1])
@@ -232,6 +283,9 @@ with col_demo2:
     if st.button("Voir une démo — pré-remplir avec un exemple", use_container_width=True):
         st.session_state['demo_us'] = DEMO_USER_STORY
         st.session_state['demo_ctx'] = DEMO_CONTEXT
+        st.session_state['step'] = 'input'
+        st.session_state['result'] = None
+        st.session_state['questions'] = None
 
 user_story = st.text_area(
     "User Story", height=150, value=st.session_state.get('demo_us', ''),
@@ -239,51 +293,141 @@ user_story = st.text_area(
     label_visibility="collapsed"
 )
 
-with st.expander("Contexte applicatif (optionnel — recommandé pour des tests plus précis)", expanded=bool(st.session_state.get('demo_ctx', ''))):
-    app_context = st.text_area(
-        "Contexte", height=120, value=st.session_state.get('demo_ctx', ''),
-        placeholder="Nom de l'app, type, URL, pages, rôles, règles métier...",
-        label_visibility="collapsed"
-    )
+# --- Mode Selection + Generate ---
+st.markdown("---")
 
-# --- Generate Button ---
-col1, col2, col3 = st.columns([1, 1, 1])
-with col2:
-    generate = st.button("Générer les cas de test", use_container_width=True, type="primary")
+if st.session_state.get('step') == 'input' or st.session_state.get('step') is None:
+    col_mode1, col_mode2 = st.columns(2)
 
-# --- Generation Logic (1 seul appel API) ---
-if generate:
-    st.session_state['demo_us'] = ""
-    st.session_state['demo_ctx'] = ""
-    # Reset export caches
-    st.session_state['csv_data'] = None
-    st.session_state['csv_count'] = 0
-    st.session_state['gherkin_data'] = None
+    with col_mode1:
+        guided = st.button("Mode guidé — l'IA pose des questions d'abord", use_container_width=True, type="primary")
 
-    if not api_key:
-        st.error("Configuration API manquante. Contactez l'administrateur.")
-    elif not user_story.strip():
-        st.error("Collez une User Story pour commencer.")
-    else:
-        try:
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel(model_name="gemini-2.5-flash", system_instruction=SYSTEM_PROMPT)
+    with col_mode2:
+        direct = st.button("Mode direct — génération immédiate", use_container_width=True)
 
-            if app_context and app_context.strip():
-                user_message = f"CONTEXTE APPLICATIF :\n{app_context}\n\n---\n\nUSER STORY À ANALYSER :\n{user_story}"
-            else:
+    # --- GUIDED MODE: Step 1 - Analysis ---
+    if guided:
+        st.session_state['demo_us'] = ""
+        st.session_state['demo_ctx'] = ""
+        st.session_state['result'] = None
+        st.session_state['csv_data'] = None
+        st.session_state['gherkin_data'] = None
+
+        if not api_key:
+            st.error("Configuration API manquante.")
+        elif not user_story.strip():
+            st.error("Collez une User Story pour commencer.")
+        else:
+            try:
+                genai.configure(api_key=api_key)
+                model = genai.GenerativeModel(model_name="gemini-2.5-flash", system_instruction=ANALYSIS_PROMPT)
+
+                with st.spinner("Analyse de la User Story — identification des informations manquantes..."):
+                    response = model.generate_content(f"Analyse cette User Story et identifie les informations manquantes :\n\n{user_story}")
+                    raw = response.text.strip()
+                    if raw.startswith("```"): raw = raw.split("\n", 1)[1]
+                    if raw.endswith("```"): raw = raw.rsplit("```", 1)[0]
+                    questions_data = json.loads(raw.strip())
+
+                st.session_state['questions'] = questions_data.get('questions', [])
+                st.session_state['answers'] = {}
+                st.session_state['analysis_us'] = user_story
+                st.session_state['step'] = 'questions'
+                st.rerun()
+
+            except Exception as e:
+                st.error(f"Erreur d'analyse : {str(e)}")
+
+    # --- DIRECT MODE ---
+    if direct:
+        st.session_state['demo_us'] = ""
+        st.session_state['demo_ctx'] = ""
+        st.session_state['result'] = None
+        st.session_state['csv_data'] = None
+        st.session_state['gherkin_data'] = None
+        st.session_state['questions'] = None
+        st.session_state['step'] = 'input'
+
+        if not api_key:
+            st.error("Configuration API manquante.")
+        elif not user_story.strip():
+            st.error("Collez une User Story pour commencer.")
+        else:
+            try:
+                genai.configure(api_key=api_key)
+                model = genai.GenerativeModel(model_name="gemini-2.5-flash", system_instruction=SYSTEM_PROMPT_DIRECT)
                 user_message = f"AUCUN CONTEXTE APPLICATIF FOURNI. Tu DOIS utiliser [À DÉFINIR PAR LE TESTEUR] pour toute donnée spécifique. N'invente RIEN.\n\n---\n\nUSER STORY À ANALYSER :\n{user_story}"
 
-            with st.spinner("Analyse et génération des tests..."):
-                response = model.generate_content(user_message)
-                result = response.text
+                with st.spinner("Analyse et génération des tests..."):
+                    response = model.generate_content(user_message)
+                    result = response.text
 
-            st.session_state['result'] = result
-            st.session_state['user_story'] = user_story
-            st.session_state['app_context'] = app_context if app_context else ""
+                st.session_state['result'] = result
+                st.session_state['user_story'] = user_story
+                st.session_state['app_context'] = ""
+                st.rerun()
 
-        except Exception as e:
-            st.error(f"Erreur : {str(e)}")
+            except Exception as e:
+                st.error(f"Erreur : {str(e)}")
+
+# --- GUIDED MODE: Step 2 - Questions Form ---
+if st.session_state.get('step') == 'questions' and st.session_state.get('questions'):
+    questions = st.session_state['questions']
+
+    st.markdown(f'<p class="section-title">{ICON_MSG} L\'IA a besoin de quelques pr&eacute;cisions</p>', unsafe_allow_html=True)
+    st.markdown("Remplissez les champs ci-dessous pour obtenir des cas de test **complets et prêts à exécuter**. Laissez vide si vous ne savez pas.")
+
+    with st.form("questions_form"):
+        answers = {}
+        for q in questions:
+            answers[q['id']] = st.text_input(
+                q['question'],
+                placeholder=f"Ex: {q.get('example', '')}",
+                help=q.get('why', ''),
+                key=f"q_{q['id']}"
+            )
+
+        col_sub1, col_sub2, col_sub3 = st.columns([1, 1, 1])
+        with col_sub2:
+            submitted = st.form_submit_button("Générer les cas de test", use_container_width=True, type="primary")
+
+        if submitted:
+            # Build context from answers
+            context_parts = []
+            for q in questions:
+                answer = answers.get(q['id'], '').strip()
+                if answer:
+                    context_parts.append(f"{q['question']} : {answer}")
+
+            built_context = "\n".join(context_parts)
+            us = st.session_state.get('analysis_us', '')
+
+            try:
+                genai.configure(api_key=api_key)
+                model = genai.GenerativeModel(model_name="gemini-2.5-flash", system_instruction=SYSTEM_PROMPT)
+
+                user_message = f"CONTEXTE APPLICATIF (fourni par le testeur) :\n{built_context}\n\n---\n\nUSER STORY À ANALYSER :\n{us}"
+
+                with st.spinner("Génération des cas de test avec vos précisions..."):
+                    response = model.generate_content(user_message)
+                    result = response.text
+
+                st.session_state['result'] = result
+                st.session_state['user_story'] = us
+                st.session_state['app_context'] = built_context
+                st.session_state['step'] = 'results'
+                st.session_state['csv_data'] = None
+                st.session_state['gherkin_data'] = None
+                st.rerun()
+
+            except Exception as e:
+                st.error(f"Erreur : {str(e)}")
+
+    # Back button
+    if st.button("Revenir à la saisie", key="back_to_input"):
+        st.session_state['step'] = 'input'
+        st.session_state['questions'] = None
+        st.rerun()
 
 # --- Display results ---
 if st.session_state.get('result'):
@@ -307,25 +451,22 @@ if st.session_state.get('result'):
 
     # --- Export Options ---
     st.markdown("---")
-    st.markdown(f'<p class="section-title">{ICON_DOWNLOAD} Exporter les résultats</p>', unsafe_allow_html=True)
+    st.markdown(f'<p class="section-title">{ICON_DOWNLOAD} Exporter les r&eacute;sultats</p>', unsafe_allow_html=True)
 
     col_exp1, col_exp2, col_exp3, col_exp4 = st.columns(4)
 
-    # Markdown — toujours disponible
     with col_exp1:
         export_header = f"# QA Test Generator\n\n## User Story\n{us}"
         if ctx.strip(): export_header += f"\n\n## Contexte applicatif\n{ctx}"
         markdown_content = f"{export_header}\n\n---\n\n{result}"
         st.download_button(label="Markdown", data=markdown_content, file_name="test_cases.md", mime="text/markdown", use_container_width=True, key="dl_markdown")
 
-    # TXT — toujours disponible
     with col_exp2:
         txt_header = f"User Story:\n{us}"
         if ctx.strip(): txt_header += f"\n\nContexte applicatif:\n{ctx}"
         txt_content = f"{txt_header}\n\n---\n\n{result}"
         st.download_button(label="TXT", data=txt_content, file_name="test_cases.txt", mime="text/plain", use_container_width=True, key="dl_txt")
 
-    # CSV — généré à la demande
     with col_exp3:
         csv_data = st.session_state.get('csv_data')
         if csv_data:
@@ -340,9 +481,8 @@ if st.session_state.get('result'):
                         st.session_state['csv_count'] = csv_count
                         st.rerun()
                     else:
-                        st.error("Erreur de conversion CSV. Réessayez.")
+                        st.error("Erreur CSV. Réessayez.")
 
-    # Gherkin — généré à la demande
     with col_exp4:
         gherkin_data = st.session_state.get('gherkin_data')
         if gherkin_data:
@@ -356,6 +496,18 @@ if st.session_state.get('result'):
                         st.rerun()
                     else:
                         st.error("Erreur Gherkin. Réessayez.")
+
+    # --- New generation button ---
+    st.markdown("---")
+    col_new1, col_new2, col_new3 = st.columns([1, 1, 1])
+    with col_new2:
+        if st.button("Nouvelle génération", use_container_width=True):
+            for key in ['result', 'csv_data', 'gherkin_data', 'questions']:
+                st.session_state[key] = None
+            st.session_state['step'] = 'input'
+            st.session_state['csv_count'] = 0
+            st.session_state['answers'] = {}
+            st.rerun()
 
 # --- Footer ---
 st.markdown(f"""
