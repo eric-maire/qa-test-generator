@@ -144,7 +144,8 @@ Valeurs limites, erreurs, concurrence, timeout. Pour chaque : titre + données +
 ## 3. SUGGESTIONS DE RISQUES
 Risques fonctionnels, performance, sécurité, intégration. Pour chaque : titre + description + impact + mitigation
 
-RÈGLES : exhaustif mais pertinent, langage clair, français sauf termes techniques, Markdown structuré."""
+RÈGLES : exhaustif mais pertinent, langage clair, Markdown structuré.
+LANGUE : Détecte la langue de la User Story. Génère TOUS les cas de test dans la même langue."""
 
 SYSTEM_PROMPT_DIRECT = """Tu es un expert QA senior avec 15 ans d'expérience en test logiciel.
 
@@ -174,7 +175,8 @@ Valeurs limites, erreurs, concurrence, timeout. Pour chaque : titre + données +
 ## 3. SUGGESTIONS DE RISQUES
 Risques fonctionnels, performance, sécurité, intégration. Pour chaque : titre + description + impact + mitigation
 
-RÈGLES : exhaustif mais pertinent, langage clair, français sauf termes techniques, Markdown structuré."""
+RÈGLES : exhaustif mais pertinent, langage clair, Markdown structuré.
+LANGUE : Détecte la langue de la User Story. Génère TOUS les cas de test dans la même langue."""
 
 CSV_CONVERSION_PROMPT = """Convertis les cas de test en tableau JSON strict pour Jira.
 Extrais les cas fonctionnels et limites (PAS les risques).
