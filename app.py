@@ -1,7 +1,6 @@
 import streamlit as st
 import google.generativeai as genai
 import json
-import time
 import csv
 import io
 import re
@@ -150,7 +149,13 @@ Pour chaque cas de test, utilise exactement cette structure (traduis les noms de
 
 ## 2. CAS LIMITES / EDGE CASES
 Numérote chaque cas : CE-001, CE-002, CE-003, etc.
-Valeurs limites, erreurs, concurrence, timeout. Pour chaque : titre + données + description + résultat attendu
+Valeurs limites, erreurs, concurrence, timeout. Utilise la même structure que les cas fonctionnels :
+- Titre / Title
+- Préconditions / Preconditions
+- Données de test / Test Data
+- Étapes numérotées / Numbered Steps
+- Résultat attendu / Expected Result
+- Priorité (Haute/Moyenne/Basse) / Priority (High/Medium/Low)
 
 ## 3. SUGGESTIONS DE RISQUES / RISK SUGGESTIONS
 Numérote chaque risque : R-001, R-002, R-003, etc.
@@ -191,7 +196,13 @@ Pour chaque cas de test, utilise exactement cette structure (traduis les noms de
 
 ## 2. CAS LIMITES / EDGE CASES
 Numérote chaque cas : CE-001, CE-002, CE-003, etc.
-Valeurs limites, erreurs, concurrence, timeout. Pour chaque : titre + données + description + résultat attendu
+Valeurs limites, erreurs, concurrence, timeout. Utilise la même structure que les cas fonctionnels :
+- Titre / Title
+- Préconditions / Preconditions
+- Données de test / Test Data
+- Étapes numérotées / Numbered Steps
+- Résultat attendu / Expected Result
+- Priorité (Haute/Moyenne/Basse) / Priority (High/Medium/Low)
 
 ## 3. SUGGESTIONS DE RISQUES / RISK SUGGESTIONS
 Numérote chaque risque : R-001, R-002, R-003, etc.
@@ -201,7 +212,7 @@ RÈGLES : exhaustif mais pertinent, langage clair, Markdown structuré."""
 
 CSV_CONVERSION_PROMPT = """Convertis les cas de test en tableau JSON strict pour Jira.
 Extrais les cas fonctionnels et limites (PAS les risques).
-Champs : "Test Case ID" (TC-001...), "Summary", "Description", "Preconditions", "Test Steps", "Expected Result", "Priority".
+Champs : "Test Case ID" (garde les IDs originaux : CTF-001, CE-001, etc.), "Summary", "Description", "Preconditions", "Test Steps", "Expected Result", "Priority".
 Le contenu doit être dans la même langue que les cas de test fournis.
 Retourne UNIQUEMENT le JSON. Pas de backticks. JSON valide uniquement. Pas de Markdown dans les valeurs."""
 
@@ -281,7 +292,8 @@ def generate_csv(result):
         if raw.endswith("```"): raw = raw.rsplit("```", 1)[0]
         tc = json.loads(raw.strip())
         return json_to_jira_csv(tc), len(tc)
-    except Exception:
+    except Exception as e:
+        st.error(f"Erreur CSV : {str(e)}")
         return None, 0
 
 def generate_gherkin(result):
@@ -293,7 +305,8 @@ def generate_gherkin(result):
         if t.startswith("```"): t = t.split("\n", 1)[1]
         if t.endswith("```"): t = t.rsplit("```", 1)[0]
         return t.strip()
-    except Exception:
+    except Exception as e:
+        st.error(f"Erreur Gherkin : {str(e)}")
         return None
 
 # --- Init session state ---
@@ -384,7 +397,7 @@ if st.session_state.get('step') == 'input' or st.session_state.get('step') is No
             try:
                 genai.configure(api_key=api_key)
                 model = genai.GenerativeModel(model_name="gemini-2.5-flash", system_instruction=SYSTEM_PROMPT_DIRECT)
-                user_message = f"AUCUN CONTEXTE APPLICATIF FOURNI. Tu DOIS utiliser [À DÉFINIR PAR LE TESTEUR] pour toute donnée spécifique. N'invente RIEN.\n\n---\n\nUSER STORY À ANALYSER :\n{user_story}"
+                user_message = f"NO APPLICATION CONTEXT PROVIDED / AUCUN CONTEXTE APPLICATIF FOURNI.\n\n---\n\nUSER STORY:\n{user_story}"
 
                 with st.spinner("Analyse et génération des tests..."):
                     response = model.generate_content(user_message)
@@ -436,7 +449,7 @@ if st.session_state.get('step') == 'questions' and st.session_state.get('questio
                 genai.configure(api_key=api_key)
                 model = genai.GenerativeModel(model_name="gemini-2.5-flash", system_instruction=SYSTEM_PROMPT)
 
-                user_message = f"CONTEXTE APPLICATIF (fourni par le testeur) :\n{built_context}\n\n---\n\nUSER STORY À ANALYSER :\n{us}"
+                user_message = f"APPLICATION CONTEXT / CONTEXTE APPLICATIF :\n{built_context}\n\n---\n\nUSER STORY:\n{us}"
 
                 with st.spinner("Génération des cas de test avec vos précisions..."):
                     response = model.generate_content(user_message)
@@ -459,6 +472,9 @@ if st.session_state.get('step') == 'questions' and st.session_state.get('questio
     if st.button("Revenir à la saisie", key="back_to_input"):
         st.session_state['step'] = 'input'
         st.session_state['questions'] = None
+        st.session_state['result'] = None
+        st.session_state['csv_data'] = None
+        st.session_state['gherkin_data'] = None
         st.rerun()
 
 # --- Display results ---
