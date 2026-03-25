@@ -507,6 +507,8 @@ if st.session_state.get('result'):
     st.markdown(f'<p class="section-title">{ICON_DOWNLOAD} Exporter les r&eacute;sultats</p>', unsafe_allow_html=True)
 
     col_exp1, col_exp2, col_exp3, col_exp4 = st.columns(4)
+    generate_csv_btn = False
+    generate_gherkin_btn = False
 
     with col_exp1:
         export_header = f"# QA Test Generator\n\n## User Story\n{us}"
@@ -526,12 +528,16 @@ if st.session_state.get('result'):
             csv_count = st.session_state.get('csv_count', 0)
             st.download_button(label=f"CSV Jira ({csv_count})", data=csv_data, file_name="test_cases_jira.csv", mime="text/csv", use_container_width=True, key="dl_csv")
         else:
-            if st.button("Générer CSV Jira", use_container_width=True, key="btn_csv"):
-                st.session_state['generate_csv_flag'] = True
-                st.rerun()
+            generate_csv_btn = st.button("Générer CSV Jira", use_container_width=True, key="btn_csv")
 
-    if st.session_state.get('generate_csv_flag'):
-        st.session_state['generate_csv_flag'] = False
+    with col_exp4:
+        gherkin_data = st.session_state.get('gherkin_data')
+        if gherkin_data:
+            st.download_button(label="Gherkin", data=gherkin_data, file_name="test_cases.feature", mime="text/plain", use_container_width=True, key="dl_gherkin")
+        else:
+            generate_gherkin_btn = st.button("Générer Gherkin", use_container_width=True, key="btn_gherkin")
+
+    if not st.session_state.get('csv_data') and generate_csv_btn:
         with st.spinner("Conversion en CSV Jira..."):
             csv_data, csv_count = generate_csv(result)
             if csv_data:
@@ -541,17 +547,7 @@ if st.session_state.get('result'):
             else:
                 st.error("Erreur CSV. Réessayez.")
 
-    with col_exp4:
-        gherkin_data = st.session_state.get('gherkin_data')
-        if gherkin_data:
-            st.download_button(label="Gherkin", data=gherkin_data, file_name="test_cases.feature", mime="text/plain", use_container_width=True, key="dl_gherkin")
-        else:
-            if st.button("Générer Gherkin", use_container_width=True, key="btn_gherkin"):
-                st.session_state['generate_gherkin_flag'] = True
-                st.rerun()
-
-    if st.session_state.get('generate_gherkin_flag'):
-        st.session_state['generate_gherkin_flag'] = False
+    if not st.session_state.get('gherkin_data') and generate_gherkin_btn:
         with st.spinner("Génération Gherkin..."):
             gherkin_data = generate_gherkin(result)
             if gherkin_data:
