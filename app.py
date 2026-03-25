@@ -96,8 +96,9 @@ section[data-testid="stSidebar"] .stMarkdown h3 {
 </style>
 """, unsafe_allow_html=True)
 
-# --- Prompts ---
-ANALYSIS_PROMPT = """You are a senior QA expert. / Tu es un expert QA senior. You are given a User Story. You must analyze the MISSING information needed to generate complete and executable test cases.
+# --- Prompts (all bilingual to avoid language bias) ---
+ANALYSIS_PROMPT = """You are a senior QA expert. / Tu es un expert QA senior.
+You are given a User Story. You must analyze the MISSING information needed to generate complete and executable test cases.
 
 LANGUAGE: Detect the language of the User Story. Ask all questions in the same language. If the User Story is in English, questions must be in English. If in French, questions must be in French.
 
@@ -123,92 +124,92 @@ RULES:
 - Return ONLY the JSON, nothing else
 - No backticks, no comments"""
 
-SYSTEM_PROMPT = """Tu es un expert QA senior avec 15 ans d'expérience en test logiciel.
+SYSTEM_PROMPT = """You are a senior QA expert with 15 years of experience in software testing. / Tu es un expert QA senior avec 15 ans d'expérience en test logiciel.
 
-Tu génères des cas de test CONCRETS et EXÉCUTABLES. Un testeur junior qui ne connaît pas l'application doit pouvoir exécuter chaque cas de test sans poser de question.
+You generate CONCRETE and EXECUTABLE test cases. A junior tester who does not know the application must be able to execute each test case without asking any questions.
 
-=== RÈGLE ABSOLUE ===
-Utilise UNIQUEMENT les informations fournies dans le contexte applicatif.
-Ne complète pas, n'invente pas, n'extrapole pas.
-Si malgré le contexte fourni certaines données manquent encore, marque-les [À DÉFINIR PAR LE TESTEUR].
-LANGUE : Détecte la langue de la User Story. Réponds INTÉGRALEMENT dans cette langue. Si la User Story est en anglais, TOUT doit être en anglais. Si elle est en français, TOUT doit être en français.
-=== FIN RÈGLE ===
+=== ABSOLUTE RULE / RÈGLE ABSOLUE ===
+Use ONLY the information provided in the application context.
+Do not complete, do not invent, do not extrapolate.
+If some data is still missing despite the context provided, mark it [TO BE DEFINED BY TESTER] or [À DÉFINIR PAR LE TESTEUR].
+LANGUAGE: Detect the language of the User Story. Respond ENTIRELY in that language. If the User Story is in English, EVERYTHING must be in English. If in French, EVERYTHING must be in French.
+=== END RULE / FIN RÈGLE ===
 
-À partir de la User Story et du contexte applicatif fourni, génère :
-Ne te présente JAMAIS. Ne fais aucune introduction. Commence DIRECTEMENT par la section 1.
+From the User Story and application context provided, generate:
+NEVER introduce yourself. No introduction. Start DIRECTLY with section 1.
 
-## 1. CAS DE TEST FONCTIONNELS (ou FUNCTIONAL TEST CASES si la User Story est en anglais)
-Numérote chaque cas : CTF-001, CTF-002, CTF-003, etc.
-Pour chaque cas de test, utilise exactement cette structure (traduis les noms de champs dans la langue de la User Story) :
-- Titre / Title
-- Préconditions / Preconditions
-- Données de test / Test Data
-- Étapes numérotées / Numbered Steps
-- Résultat attendu / Expected Result
-- Priorité (Haute/Moyenne/Basse) / Priority (High/Medium/Low)
+## 1. FUNCTIONAL TEST CASES / CAS DE TEST FONCTIONNELS
+Number each case: CTF-001, CTF-002, CTF-003, etc.
+For each test case, use exactly this structure (in the language of the User Story):
+- Title / Titre
+- Preconditions / Préconditions
+- Test Data / Données de test
+- Numbered Steps / Étapes numérotées
+- Expected Result / Résultat attendu
+- Priority (High/Medium/Low) / Priorité (Haute/Moyenne/Basse)
 
-## 2. CAS LIMITES / EDGE CASES
-Numérote chaque cas : CE-001, CE-002, CE-003, etc.
-Valeurs limites, erreurs, concurrence, timeout. Utilise la même structure que les cas fonctionnels :
-- Titre / Title
-- Préconditions / Preconditions
-- Données de test / Test Data
-- Étapes numérotées / Numbered Steps
-- Résultat attendu / Expected Result
-- Priorité (Haute/Moyenne/Basse) / Priority (High/Medium/Low)
+## 2. EDGE CASES / CAS LIMITES
+Number each case: CE-001, CE-002, CE-003, etc.
+Boundary values, errors, concurrency, timeout. Use the same structure as functional test cases:
+- Title / Titre
+- Preconditions / Préconditions
+- Test Data / Données de test
+- Numbered Steps / Étapes numérotées
+- Expected Result / Résultat attendu
+- Priority (High/Medium/Low) / Priorité (Haute/Moyenne/Basse)
 
-## 3. SUGGESTIONS DE RISQUES / RISK SUGGESTIONS
-Numérote chaque risque : R-001, R-002, R-003, etc.
-Risques fonctionnels, performance, sécurité, intégration. Pour chaque : titre + description + impact + mitigation
+## 3. RISK SUGGESTIONS / SUGGESTIONS DE RISQUES
+Number each risk: R-001, R-002, R-003, etc.
+Functional, performance, security, integration risks. For each: title + description + impact + mitigation
 
-RÈGLES : exhaustif mais pertinent, langage clair, Markdown structuré."""
+RULES: exhaustive but relevant, clear language, structured Markdown."""
 
-SYSTEM_PROMPT_DIRECT = """Tu es un expert QA senior avec 15 ans d'expérience en test logiciel.
+SYSTEM_PROMPT_DIRECT = """You are a senior QA expert with 15 years of experience in software testing. / Tu es un expert QA senior avec 15 ans d'expérience en test logiciel.
 
-Tu génères des cas de test CONCRETS et EXÉCUTABLES. Un testeur junior qui ne connaît pas l'application doit pouvoir exécuter chaque cas de test sans poser de question.
+You generate CONCRETE and EXECUTABLE test cases. A junior tester who does not know the application must be able to execute each test case without asking any questions.
 
-=== RÈGLE ABSOLUE SUR LES DONNÉES ===
-Si un contexte applicatif est fourni :
-- Utilise UNIQUEMENT les informations données
-- Ne complète pas, n'invente pas, n'extrapole pas
-- Si certaines données manquent, marque-les [À DÉFINIR PAR LE TESTEUR]
+=== ABSOLUTE RULE ON DATA / RÈGLE ABSOLUE SUR LES DONNÉES ===
+If application context is provided:
+- Use ONLY the information given
+- Do not complete, do not invent, do not extrapolate
+- If some data is missing, mark it [TO BE DEFINED BY TESTER] or [À DÉFINIR PAR LE TESTEUR]
 
-Si AUCUN contexte applicatif n'est fourni :
-- N'INVENTE AUCUN contexte
-- Pour CHAQUE donnée non fournie, écris : [À DÉFINIR PAR LE TESTEUR]
+If NO application context is provided:
+- Do NOT INVENT any context
+- For EACH missing data point, write: [TO BE DEFINED BY TESTER] or [À DÉFINIR PAR LE TESTEUR]
 
-LANGUE : Détecte la langue de la User Story. Réponds INTÉGRALEMENT dans cette langue. Si la User Story est en anglais, TOUT doit être en anglais. Si elle est en français, TOUT doit être en français.
-=== FIN RÈGLE ===
+LANGUAGE: Detect the language of the User Story. Respond ENTIRELY in that language. If the User Story is in English, EVERYTHING must be in English. If in French, EVERYTHING must be in French.
+=== END RULE / FIN RÈGLE ===
 
-À partir de la User Story (et du contexte applicatif si fourni), génère :
+From the User Story (and application context if provided), generate:
 
-Ne te présente JAMAIS. Ne fais aucune introduction. Commence DIRECTEMENT par la section 1.
+NEVER introduce yourself. No introduction. Start DIRECTLY with section 1.
 
-## 1. CAS DE TEST FONCTIONNELS (ou FUNCTIONAL TEST CASES si la User Story est en anglais)
-Numérote chaque cas : CTF-001, CTF-002, CTF-003, etc.
-Pour chaque cas de test, utilise exactement cette structure (traduis les noms de champs dans la langue de la User Story) :
-- Titre / Title
-- Préconditions / Preconditions
-- Données de test / Test Data
-- Étapes numérotées / Numbered Steps
-- Résultat attendu / Expected Result
-- Priorité (Haute/Moyenne/Basse) / Priority (High/Medium/Low)
+## 1. FUNCTIONAL TEST CASES / CAS DE TEST FONCTIONNELS
+Number each case: CTF-001, CTF-002, CTF-003, etc.
+For each test case, use exactly this structure (in the language of the User Story):
+- Title / Titre
+- Preconditions / Préconditions
+- Test Data / Données de test
+- Numbered Steps / Étapes numérotées
+- Expected Result / Résultat attendu
+- Priority (High/Medium/Low) / Priorité (Haute/Moyenne/Basse)
 
-## 2. CAS LIMITES / EDGE CASES
-Numérote chaque cas : CE-001, CE-002, CE-003, etc.
-Valeurs limites, erreurs, concurrence, timeout. Utilise la même structure que les cas fonctionnels :
-- Titre / Title
-- Préconditions / Preconditions
-- Données de test / Test Data
-- Étapes numérotées / Numbered Steps
-- Résultat attendu / Expected Result
-- Priorité (Haute/Moyenne/Basse) / Priority (High/Medium/Low)
+## 2. EDGE CASES / CAS LIMITES
+Number each case: CE-001, CE-002, CE-003, etc.
+Boundary values, errors, concurrency, timeout. Use the same structure as functional test cases:
+- Title / Titre
+- Preconditions / Préconditions
+- Test Data / Données de test
+- Numbered Steps / Étapes numérotées
+- Expected Result / Résultat attendu
+- Priority (High/Medium/Low) / Priorité (Haute/Moyenne/Basse)
 
-## 3. SUGGESTIONS DE RISQUES / RISK SUGGESTIONS
-Numérote chaque risque : R-001, R-002, R-003, etc.
-Risques fonctionnels, performance, sécurité, intégration. Pour chaque : titre + description + impact + mitigation
+## 3. RISK SUGGESTIONS / SUGGESTIONS DE RISQUES
+Number each risk: R-001, R-002, R-003, etc.
+Functional, performance, security, integration risks. For each: title + description + impact + mitigation
 
-RÈGLES : exhaustif mais pertinent, langage clair, Markdown structuré."""
+RULES: exhaustive but relevant, clear language, structured Markdown."""
 
 CSV_CONVERSION_PROMPT = """Convert the test cases into a strict JSON table for Jira. / Convertis les cas de test en tableau JSON strict pour Jira.
 Extract functional and edge cases (NOT risks). / Extrais les cas fonctionnels et limites (PAS les risques).
@@ -260,7 +261,7 @@ with st.sidebar:
 # --- Helpers ---
 def json_to_jira_csv(test_cases_json):
     output = io.StringIO()
-    fieldnames = ["Test Case ID", "Résumé", "Description", "Preconditions", "Test Steps", "Expected Result", "Priorité"]
+    fieldnames = ["Test Case ID", "Summary", "Description", "Preconditions", "Test Steps", "Expected Result", "Priority"]
     writer = csv.DictWriter(output, fieldnames=fieldnames, quoting=csv.QUOTE_ALL)
     writer.writeheader()
     for tc in test_cases_json:
@@ -279,12 +280,12 @@ def json_to_jira_csv(test_cases_json):
             return val[:252] + "..." if len(val) > limit else val
         writer.writerow({
             "Test Case ID": to_str(tc.get("Test Case ID", "")),
-            "Résumé": trunc(tc.get("Summary", "")),
+            "Summary": trunc(tc.get("Summary", "")),
             "Description": to_str(tc.get("Description", "")),
             "Preconditions": trunc(fmt(tc.get("Preconditions", ""))),
             "Test Steps": trunc(fmt(tc.get("Test Steps", ""))),
             "Expected Result": trunc(fmt(tc.get("Expected Result", ""))),
-            "Priorité": to_str(tc.get("Priority", "Moyenne")),
+            "Priority": to_str(tc.get("Priority", "")),
         })
     return output.getvalue()
 
@@ -318,9 +319,38 @@ def generate_gherkin(result):
 # --- Init session state ---
 for key in ['result', 'user_story', 'app_context',
             'csv_data', 'csv_count', 'gherkin_data', 'questions', 'answers',
-            'step', 'analysis_us']:
+            'step', 'analysis_us', 'pending_csv', 'pending_gherkin']:
     if key not in st.session_state:
-        st.session_state[key] = "" if key in ['user_story', 'app_context', 'analysis_us'] else None if key in ['result', 'csv_data', 'gherkin_data', 'questions'] else 0 if key in ['csv_count'] else {} if key == 'answers' else 'input' if key == 'step' else None
+        if key in ['user_story', 'app_context', 'analysis_us']:
+            st.session_state[key] = ""
+        elif key in ['result', 'csv_data', 'gherkin_data', 'questions']:
+            st.session_state[key] = None
+        elif key in ['csv_count']:
+            st.session_state[key] = 0
+        elif key == 'answers':
+            st.session_state[key] = {}
+        elif key == 'step':
+            st.session_state[key] = 'input'
+        elif key in ['pending_csv', 'pending_gherkin']:
+            st.session_state[key] = False
+
+# --- Handle pending CSV/Gherkin generation (runs BEFORE UI to avoid double-click) ---
+if st.session_state.get('pending_csv') and st.session_state.get('result'):
+    st.session_state['pending_csv'] = False
+    with st.spinner("Conversion en CSV Jira..."):
+        csv_data, csv_count = generate_csv(st.session_state['result'])
+        if csv_data:
+            st.session_state['csv_data'] = csv_data
+            st.session_state['csv_count'] = csv_count
+            st.rerun()
+
+if st.session_state.get('pending_gherkin') and st.session_state.get('result'):
+    st.session_state['pending_gherkin'] = False
+    with st.spinner("Génération Gherkin..."):
+        gherkin_data = generate_gherkin(st.session_state['result'])
+        if gherkin_data:
+            st.session_state['gherkin_data'] = gherkin_data
+            st.rerun()
 
 # --- Main Input ---
 st.markdown(f'<p class="section-title">{ICON_CLIPBOARD} Votre User Story</p>', unsafe_allow_html=True)
@@ -371,7 +401,7 @@ if st.session_state.get('step') == 'input' or st.session_state.get('step') is No
                 genai.configure(api_key=api_key)
                 model = genai.GenerativeModel(model_name="gemini-2.5-flash", system_instruction=ANALYSIS_PROMPT)
 
-                with st.spinner("Analyse de la User Story — identification des informations manquantes..."):
+                with st.spinner("Analyse de la User Story..."):
                     response = model.generate_content(f"Analyze this User Story and identify missing information / Analyse cette User Story et identifie les informations manquantes :\n\n{user_story}")
                     raw = response.text.strip()
                     if raw.startswith("```"): raw = raw.split("\n", 1)[1]
@@ -408,7 +438,6 @@ if st.session_state.get('step') == 'input' or st.session_state.get('step') is No
                 with st.spinner("Analyse et génération des tests..."):
                     response = model.generate_content(user_message)
                     result = response.text
-                    # Nettoyer le préambule IA s'il existe
                     if "## 1." in result:
                         result = result[result.index("## 1."):]
 
@@ -460,7 +489,6 @@ if st.session_state.get('step') == 'questions' and st.session_state.get('questio
                 with st.spinner("Génération des cas de test avec vos précisions..."):
                     response = model.generate_content(user_message)
                     result = response.text
-                    # Nettoyer le préambule IA s'il existe
                     if "## 1." in result:
                         result = result[result.index("## 1."):]
 
@@ -507,18 +535,16 @@ if st.session_state.get('result'):
     st.markdown(f'<p class="section-title">{ICON_DOWNLOAD} Exporter les r&eacute;sultats</p>', unsafe_allow_html=True)
 
     col_exp1, col_exp2, col_exp3, col_exp4 = st.columns(4)
-    generate_csv_btn = False
-    generate_gherkin_btn = False
 
     with col_exp1:
         export_header = f"# QA Test Generator\n\n## User Story\n{us}"
-        if ctx.strip(): export_header += f"\n\n## Contexte applicatif\n{ctx}"
+        if ctx.strip(): export_header += f"\n\n## Application Context\n{ctx}"
         markdown_content = f"{export_header}\n\n---\n\n{result}"
         st.download_button(label="Markdown", data=markdown_content, file_name="test_cases.md", mime="text/markdown", use_container_width=True, key="dl_markdown")
 
     with col_exp2:
         txt_header = f"User Story:\n{us}"
-        if ctx.strip(): txt_header += f"\n\nContexte applicatif:\n{ctx}"
+        if ctx.strip(): txt_header += f"\n\nApplication Context:\n{ctx}"
         txt_content = f"{txt_header}\n\n---\n\n{result}"
         st.download_button(label="TXT", data=txt_content, file_name="test_cases.txt", mime="text/plain", use_container_width=True, key="dl_txt")
 
@@ -528,33 +554,18 @@ if st.session_state.get('result'):
             csv_count = st.session_state.get('csv_count', 0)
             st.download_button(label=f"CSV Jira ({csv_count})", data=csv_data, file_name="test_cases_jira.csv", mime="text/csv", use_container_width=True, key="dl_csv")
         else:
-            generate_csv_btn = st.button("Générer CSV Jira", use_container_width=True, key="btn_csv")
+            def trigger_csv():
+                st.session_state['pending_csv'] = True
+            st.button("Générer CSV Jira", use_container_width=True, key="btn_csv", on_click=trigger_csv)
 
     with col_exp4:
         gherkin_data = st.session_state.get('gherkin_data')
         if gherkin_data:
             st.download_button(label="Gherkin", data=gherkin_data, file_name="test_cases.feature", mime="text/plain", use_container_width=True, key="dl_gherkin")
         else:
-            generate_gherkin_btn = st.button("Générer Gherkin", use_container_width=True, key="btn_gherkin")
-
-    if not st.session_state.get('csv_data') and generate_csv_btn:
-        with st.spinner("Conversion en CSV Jira..."):
-            csv_data, csv_count = generate_csv(result)
-            if csv_data:
-                st.session_state['csv_data'] = csv_data
-                st.session_state['csv_count'] = csv_count
-                st.rerun()
-            else:
-                st.error("Erreur CSV. Réessayez.")
-
-    if not st.session_state.get('gherkin_data') and generate_gherkin_btn:
-        with st.spinner("Génération Gherkin..."):
-            gherkin_data = generate_gherkin(result)
-            if gherkin_data:
-                st.session_state['gherkin_data'] = gherkin_data
-                st.rerun()
-            else:
-                st.error("Erreur Gherkin. Réessayez.")
+            def trigger_gherkin():
+                st.session_state['pending_gherkin'] = True
+            st.button("Générer Gherkin", use_container_width=True, key="btn_gherkin", on_click=trigger_gherkin)
 
     st.markdown("---")
     col_new1, col_new2, col_new3 = st.columns([1, 1, 1])
@@ -566,6 +577,8 @@ if st.session_state.get('result'):
             st.session_state['csv_count'] = 0
             st.session_state['answers'] = {}
             st.session_state['user_story_input'] = ""
+            st.session_state['pending_csv'] = False
+            st.session_state['pending_gherkin'] = False
 
         st.button("Nouvelle génération", use_container_width=True, on_click=reset_app)
 
