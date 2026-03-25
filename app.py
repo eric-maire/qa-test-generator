@@ -100,6 +100,8 @@ section[data-testid="stSidebar"] .stMarkdown h3 {
 # --- Prompts ---
 ANALYSIS_PROMPT = """Tu es un expert QA senior. On te donne une User Story. Tu dois analyser les informations MANQUANTES nécessaires pour générer des cas de test complets et exécutables.
 
+LANGUE : Détecte la langue de la User Story. Pose toutes les questions dans la même langue. Si la User Story est en anglais, les questions doivent être en anglais. Si elle est en français, les questions doivent être en français.
+
 Retourne UNIQUEMENT un JSON valide avec cette structure :
 {
   "questions": [
@@ -134,15 +136,15 @@ LANGUE : Détecte la langue de la User Story. Réponds INTÉGRALEMENT dans cette
 === FIN RÈGLE ===
 
 À partir de la User Story et du contexte applicatif fourni, génère :
-Ne te présente JAMAIS. Ne fais aucune introduction. Commence DIRECTEMENT par "## 1. CAS DE TEST FONCTIONNELS".
+Ne te présente JAMAIS. Ne fais aucune introduction. Commence DIRECTEMENT par la section 1.
 
-## 1. CAS DE TEST FONCTIONNELS
-Pour chaque cas de test : Titre, Préconditions, Données de test, Étapes numérotées, Résultat attendu, Priorité (Haute/Moyenne/Basse)
+## 1. CAS DE TEST FONCTIONNELS (ou FUNCTIONAL TEST CASES si la User Story est en anglais)
+Pour chaque cas de test : Titre, Préconditions, Données de test, Étapes numérotées, Résultat attendu, Priorité (Haute/Moyenne/Basse ou High/Medium/Low)
 
-## 2. CAS LIMITES (EDGE CASES)
+## 2. CAS LIMITES / EDGE CASES
 Valeurs limites, erreurs, concurrence, timeout. Pour chaque : titre + données + description + résultat attendu
 
-## 3. SUGGESTIONS DE RISQUES
+## 3. SUGGESTIONS DE RISQUES / RISK SUGGESTIONS
 Risques fonctionnels, performance, sécurité, intégration. Pour chaque : titre + description + impact + mitigation
 
 RÈGLES : exhaustif mais pertinent, langage clair, Markdown structuré."""
@@ -166,26 +168,28 @@ LANGUE : Détecte la langue de la User Story. Réponds INTÉGRALEMENT dans cette
 
 À partir de la User Story (et du contexte applicatif si fourni), génère :
 
-Ne te présente JAMAIS. Ne fais aucune introduction. Commence DIRECTEMENT par "## 1. CAS DE TEST FONCTIONNELS".
+Ne te présente JAMAIS. Ne fais aucune introduction. Commence DIRECTEMENT par la section 1.
 
-## 1. CAS DE TEST FONCTIONNELS
-Pour chaque cas de test : Titre, Préconditions, Données de test, Étapes numérotées, Résultat attendu, Priorité (Haute/Moyenne/Basse)
+## 1. CAS DE TEST FONCTIONNELS (ou FUNCTIONAL TEST CASES si la User Story est en anglais)
+Pour chaque cas de test : Titre, Préconditions, Données de test, Étapes numérotées, Résultat attendu, Priorité (Haute/Moyenne/Basse ou High/Medium/Low)
 
-## 2. CAS LIMITES (EDGE CASES)
+## 2. CAS LIMITES / EDGE CASES
 Valeurs limites, erreurs, concurrence, timeout. Pour chaque : titre + données + description + résultat attendu
 
-## 3. SUGGESTIONS DE RISQUES
+## 3. SUGGESTIONS DE RISQUES / RISK SUGGESTIONS
 Risques fonctionnels, performance, sécurité, intégration. Pour chaque : titre + description + impact + mitigation
 
 RÈGLES : exhaustif mais pertinent, langage clair, Markdown structuré."""
 
 CSV_CONVERSION_PROMPT = """Convertis les cas de test en tableau JSON strict pour Jira.
 Extrais les cas fonctionnels et limites (PAS les risques).
-Champs : "Test Case ID" (TC-001...), "Summary", "Description", "Preconditions", "Test Steps", "Expected Result", "Priority" (Haute/Moyenne/Basse).
+Champs : "Test Case ID" (TC-001...), "Summary", "Description", "Preconditions", "Test Steps", "Expected Result", "Priority".
+Le contenu doit être dans la même langue que les cas de test fournis.
 Retourne UNIQUEMENT le JSON. Pas de backticks. JSON valide uniquement. Pas de Markdown dans les valeurs."""
 
 GHERKIN_CONVERSION_PROMPT = """Convertis les cas de test en Gherkin strict.
-Feature/Scenario/Given/When/Then en anglais, contenu en français.
+Feature/Scenario/Given/When/Then en anglais.
+Le contenu des scénarios doit être dans la même langue que les cas de test fournis.
 Chaque cas de test = un Scenario. Pas les risques.
 Scenario Outline avec Examples pour les jeux de données multiples.
 Texte brut uniquement, pas de Markdown."""
